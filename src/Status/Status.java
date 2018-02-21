@@ -13,12 +13,14 @@ package Status;
 public class Status 
 {
     private final byte StatusAddress;
-   private final int nrOfBytes;
+   private  int nrOfBytes;
+   private boolean triggered;
    
     public  Status(byte statusAddr, int nrBytes)
             {
                 this.StatusAddress = statusAddr;
                 this.nrOfBytes = nrBytes;
+                triggered = false;
             }
     
 
@@ -31,5 +33,16 @@ public class Status
     {
         return nrOfBytes;
     }
-        
+    
+    /**
+     * Put the byte values where they are supposed to be. 
+     * Should be overided in classes with multiple byte storage instead of only trigger bool
+     * @param val The given byte value 
+     */
+    public void putValue(byte[] val)
+    {
+        if(val[1] != 0)
+            triggered = true;
+    
+    }
 }
