@@ -13,10 +13,10 @@ import Commands.Commando;
  */
 public class Suction extends Commando
 {
-    
-    public Suction(byte commandAddress)
+     private static final byte COMMAND_ADDRESS = 0x06;
+    public Suction()
     {
-        super(commandAddress);
+        super(COMMAND_ADDRESS);
     }
     
 }

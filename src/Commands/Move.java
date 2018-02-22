@@ -6,6 +6,7 @@
 package Commands;
 
 import Commands.Commando;
+import java.nio.ByteBuffer;
 
 /**
  *
@@ -14,14 +15,15 @@ import Commands.Commando;
 
 public class Move extends Commando
 {
+    private static final byte COMMAND_ADDRESS = 0x05;
 
   //The values for X, Z and Y movement
     private byte[] xValue;
     private byte[] yValue;
     private byte[] zValue;
-    public Move(byte cmdAddress)
+    public Move()
     {
-        super(cmdAddress);
+        super(COMMAND_ADDRESS);
         xValue = null;
         yValue = null;
         zValue = null;
@@ -57,6 +59,56 @@ public class Move extends Commando
     {
         this.zValue = zValue;
     }
+    
+    
+    /**
+     * Set the byte[] value with an int of 2 significant numbers
+     * @param intValue The int to set to value
+     */
+    public void setIntYValue(int intValue)
+    {
+        ByteBuffer dbuf = ByteBuffer.allocate(Integer.SIZE/8);
+        dbuf.putInt(intValue);
+         setyValue(dbuf.array()); // { 0, 1 }
+    }
+
+    /**
+     * Returns byte[] value as int
+     * @return  Returns byte[] value as int 
+     */
+     public int getIntYValue()
+    {
+        byte[] arr = getyValue();
+        ByteBuffer wrapped = ByteBuffer.wrap(arr); // big-endian by default
+        int num = wrapped.getInt();// 1
+        
+        return num;
+    }
+     
+     
+     
+         /**
+     * Set the byte[] value with an int of 2 significant numbers
+     * @param intValue The int to set to value
+     */
+    public void setShortXValue(short intValue)
+    {
+        ByteBuffer dbuf = ByteBuffer.allocate(Short.BYTES);
+        dbuf.putShort(intValue);
+         setxValue(dbuf.array()); // { 0, 1 }
+    }
+
+         /**
+     * Set the byte[] value with an int of 2 significant numbers
+     * @param shortValue to set to value
+     */
+    public void setShortYValue(short shortValue)
+    {
+        ByteBuffer dbuf = ByteBuffer.allocate(Short.BYTES);
+        dbuf.putShort(shortValue);
+         setyValue(dbuf.array()); // { 0, 1 }
+    }
+    
     
     
 }

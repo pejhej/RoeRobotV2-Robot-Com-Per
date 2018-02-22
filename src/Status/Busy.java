@@ -12,10 +12,15 @@ package Status;
  */
 public class Busy extends Status
 {
+      //Status name for this class
+    private static final String STATUS = "BUSY";
     
-    public Busy(byte statusAddr, int bytes)
+    private static final byte COMMAND_ADDRESS = 0x50;
+    
+    public Busy(int bytes)
     {
-        super(statusAddr, bytes);
+        super(COMMAND_ADDRESS, bytes, STATUS);
     }
+    
     
 }

@@ -72,7 +72,6 @@ public class Commando
          value = dbuf.array(); // { 0, 1 }
     }
 
-    
     /**
      * Returns byte[] value as int
      * @return  Returns byte[] value as int 
@@ -119,10 +118,6 @@ public class Commando
     
     
     
-        public  byte getCommandAddress()
-    {
-        return commandAddress;
-    }
 
 
 

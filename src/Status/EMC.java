@@ -13,10 +13,14 @@ package Status;
  */
 public class EMC extends Status
 {
+      //Status name for this class
+    private static final String STATUS = "EMC"; 
+    //Address for this status
+    private static final byte COMMAND_ADDRESS = 0x60;
     
-    public EMC(byte statusAddr, int bytes)
+    public EMC(int bytes)
     {
-        super(statusAddr, bytes);
+        super(COMMAND_ADDRESS, bytes, STATUS);
     }
     
 }

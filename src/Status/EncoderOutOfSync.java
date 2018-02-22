@@ -13,10 +13,14 @@ package Status;
  */
 public class EncoderOutOfSync extends Status
 {
+      //Status name for this class
+    private static final String STATUS = "ENCODER_OUT_OF_SYNC";
+    //Address for this status
+    private static final byte COMMAND_ADDRESS = 0x65;
     
-    public EncoderOutOfSync(byte statusAddr, int bytes)
+    public EncoderOutOfSync( int bytes)
     {
-        super(statusAddr, bytes);
+        super(COMMAND_ADDRESS, bytes, STATUS);
     }
     
 }

@@ -19,12 +19,11 @@ public class Calibrate extends Commando
     private final static int byteSize = 2;
 
     
-    public Calibrate(byte commandAddress)
+    private static final byte COMMAND_ADDRESS = 0x10;
+    
+    public Calibrate( )
     {
-        super(commandAddress);
-        xSteps = null;
-        ySteps = null;
-        zSteps = null;
+        super(COMMAND_ADDRESS);
         
     }
 

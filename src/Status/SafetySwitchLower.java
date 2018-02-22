@@ -13,10 +13,15 @@ package Status;
  */
 public class SafetySwitchLower extends Status
 {
-    
-    public SafetySwitchLower(byte statusAddr, int bytes)
+ 
+      //Status name for this class
+    private static final String STATUS = "SAFETY_SWITCH_LOWER";
+    //Address for this status
+    private static final byte COMMAND_ADDRESS = 0x61;
+ 
+    public SafetySwitchLower( int bytes)
     {
-        super(statusAddr, bytes);
+        super(COMMAND_ADDRESS, bytes, STATUS);
     }
     
 }

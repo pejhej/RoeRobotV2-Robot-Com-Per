@@ -6,6 +6,7 @@
 package I2CCommunication;
 
 import Commands.Acceleration;
+import Commands.CalibParam;
 import Commands.Calibrate;
 import Commands.Commando;
 import Commands.Light;
@@ -32,10 +33,12 @@ import com.pi4j.platform.Platform;
 import com.pi4j.platform.PlatformAlreadyAssignedException;
 import com.pi4j.platform.PlatformManager;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import java.util.Map;
 import java.util.LinkedList;
 
 /**
@@ -51,7 +54,7 @@ public class I2CCommunication implements Runnable
 {
 
     /*FROM THE ARDUINO/Communication TO THE JAVA PROGRAM*/
-    private static final byte BUSY = 0x50;
+ /*private static final byte BUSY = 0x50;
     private static final byte READY_TO_RECIEVE = 0x51;
     private static final byte EMC = 0x60;
     private static final byte SAFETY_SWITCH_UPPER = 0x61;
@@ -62,11 +65,11 @@ public class I2CCommunication implements Runnable
     private static final byte ENCODER_OUT_OF_RANGE = 0x66;
     private static final byte CALIB_PARAM = 0x70;
     private static final byte FLAG_POS = 0x71;
-
+     */
     //i2c-dev bus used
     private static final int I2CbusNr = 4;
-    private static final byte CONTROLLER_ADDR_ELEVATOR = 0x01;
-    private static final byte CONTROLLER_ADDR_LINEARBOT = 0x02;
+    private static final byte CONTROLLER_ADDR_ELEVATOR = 0x02;
+    private static final byte CONTROLLER_ADDR_LINEARBOT = 0x01;
 
     //I2C Bus
     I2CBus i2cbus;
@@ -79,59 +82,137 @@ public class I2CCommunication implements Runnable
     Status elevatorState;
     Status linearBotState;
 
+    /**
+     * ENUM to hold all the addresses connected to the incomming states of the
+     * arduinos
+     */
+    private enum State
+    {
+        Busy((byte) 0x50),
+        ReadyToRecieve((byte) 0x51),
+        EMC((byte) 0x60),
+        SAFETY_SWITCH_UPPER((byte) 0x61),
+        SAFETY_SWITCH_LOWER((byte) 0x62),
+        ELEV_LIMIT_TRIGG((byte) 0x63),
+        LINEARBOT_LMIT_TRIGG((byte) 0x64),
+        ENCODER_OUT_OF_SYNC((byte) 0x65),
+        ENCODER_OUT_OF_RANGE((byte) 0x66),
+        CALIB_PARAM((byte) 0x70),
+        FLAG_POS((byte) 0x71);
+
+        //Hashmap for lookup
+        private static final HashMap<Byte, State> lookup = new HashMap<Byte, State>();
+
+        //Put the states with the accompanied value in the hashmap
+        static
+        {
+            //Create reverse lookup hash map 
+            for (State s : State.values())
+            {
+                lookup.put(s.getStateValue(), s);
+            }
+        }
+        //Satus address
+        private byte stateAddr;
+
+        private State(byte stateAddress)
+        {
+            this.stateAddr = stateAddress;
+        }
+
+        public byte getStateValue()
+        {
+            return stateAddr;
+        }
+
+        public static State get(byte address)
+        {
+            //the reverse lookup by simply getting 
+            //the value from the lookup HsahMap. 
+            return lookup.get(address);
+        }
+    }
+
     //Lists to keep incomming demands in queue
     LinkedList<Commando> sendQeue;
     LinkedList<Commando> recieveQeue;
 
     HashMap<Byte, Status> statusMap;
+    ArrayList<Byte> statusList;
 
     public I2CCommunication()
     {
         //Create the recieve send lists
         recieveQeue = new LinkedList<Commando>();
         sendQeue = new LinkedList<Commando>();
+
+        statusMap = new HashMap<Byte, Status>();
+
         //hashmap for status vs byte value
-        fillStatusMap(statusMap);
+        // fillStatusMap(statusMap);
+        //fillStatusList(statusList);
+        elevatorState = null;
+        linearBotState = null;
         initiate();
     }
 
     @Override
     public void run()
     {
-        while(true)
-        {    
-        if (!sendQeue.isEmpty())
-        {    //Send the commands in the qeue
-            sendCommand(sendQeue.pollLast());
-            // Only recieve if something is sent
-            //TODO: Check this, currently the incomming recieving qeue only can recieve stateRequest, maybe staterequest should be Status 
-            //and thereof the incomming demand can handle all kind of "requests" for different states
+        while (true)
+        {
+            if (!sendQeue.isEmpty())
+            {    //Send the commands in the qeue
+                sendCommand(sendQeue.pop());
+                // Only recieve if something is sent
+                //TODO: Check this, currently the incomming recieving qeue only can recieve stateRequest, maybe staterequest should be Status 
+                //and thereof the incomming demand can handle all kind of "requests" for different states
+
+            }
             if (!recieveQeue.isEmpty())
             {//read the expecting incomming bytes
                 //Find the status to create and put all the values in the status
                 //Trigger the status listener
-                requestStatus(recieveQeue.pollLast());
-                checkStatesAndTrigger(elevatorState, linearBotState);
+                requestStatus(recieveQeue.pop());
 
+                if (elevatorState != null || linearBotState != null)
+                {
+                    checkStatesAndTrigger(elevatorState, linearBotState);
+                } else
+                {
+                    System.out.println("ONE OF THE STATES WERE NULL");
+                }
             }
         }
-        }
 
     }
 
+    /*
     private void fillStatusMap(HashMap statusMap)
     {
-        statusMap.put(BUSY, new Busy(BUSY, 1));
-        statusMap.put(EMC, new EMC(EMC, 1));
-        statusMap.put(ELEV_LIMIT_TRIGG, new ElevatorLimitTrigg(ELEV_LIMIT_TRIGG, 1));
-        statusMap.put(ENCODER_OUT_OF_RANGE, new EncoderOutOfRange(ENCODER_OUT_OF_RANGE, 1));
-        statusMap.put(ENCODER_OUT_OF_SYNC, new EncoderOutOfSync(ENCODER_OUT_OF_SYNC, 1));
-        statusMap.put(FLAG_POS, new FlagPos(FLAG_POS, 1));
-        statusMap.put(LINEARBOT_LMIT_TRIGG, new LinearBotLimitTrigged(LINEARBOT_LMIT_TRIGG, 1));
-        statusMap.put(READY_TO_RECIEVE, new ReadyToRecieve(READY_TO_RECIEVE, 1));
-        statusMap.put(SAFETY_SWITCH_LOWER, new SafetySwitchLower(SAFETY_SWITCH_LOWER, 1));
-        statusMap.put(SAFETY_SWITCH_UPPER, new SafetySwitchUpper(SAFETY_SWITCH_UPPER, 1));
+        statusMap.put(, new Busy(1));
+        statusMap.put(EMC, new EMC(1));
+        statusMap.put(ELEV_LIMIT_TRIGG, new ElevatorLimitTrigg(1));
+        statusMap.put(ENCODER_OUT_OF_RANGE, new EncoderOutOfRange(1));
+        statusMap.put(ENCODER_OUT_OF_SYNC, new EncoderOutOfSync(1));
+        statusMap.put(FLAG_POS, new FlagPos(1));
+        statusMap.put(LINEARBOT_LMIT_TRIGG, new LinearBotLimitTrigged(1));
+        statusMap.put(READY_TO_RECIEVE, new ReadyToRecieve(1));
+        statusMap.put(SAFETY_SWITCH_LOWER, new SafetySwitchLower(1));
+        statusMap.put(SAFETY_SWITCH_UPPER, new SafetySwitchUpper(1));
+
     }
+     */
+ /*
+    public void testState()
+    {
+           State state = null;
+        state.get(request.getCmdAddr());
+        
+        state.getStateValue();
+    }
+    
+     */
 
     /**
      * Handle the task of sending StateRequest to the defined controllers Reads
@@ -147,21 +228,41 @@ public class I2CCommunication implements Runnable
         byte[] returnByteLinearBot = null;
         byte[] returnByteElevator = null;
         //TODO: Fix this staterequest, should maybe be commando
-        StateRequest cmdStqry = (StateRequest) request;
+        //When request commando is staterequest both arduinos should be addressed
 
-        //Check if StateRequest is for elevator robot
-        if (cmdStqry.forElevatorRobot())
+        if (request instanceof StateRequest)
         {
-            returnByteElevator = readByteFromAddr(elevatorRobot, cmdStqry.getCmdAddr(), 5);
-            elevatorState = makeState(returnByteElevator);
-        }
-        //Check if StateRequest is for linear robot
-        if (cmdStqry.forLinearRobot())
-        {
-            returnByteLinearBot = readByteFromAddr(linearRobot, cmdStqry.getCmdAddr(), 5);
+            StateRequest cmdStqry = (StateRequest) request;
+            System.out.print("Sending request and waiting for query: ");
+            returnByteLinearBot = readByteFromAddr(linearRobot, cmdStqry.getCmdAddr(), 1);
+            
+            System.out.print("Byte read:");
+            System.out.print(returnByteLinearBot[0]);
+            System.out.print("Making state");
             linearBotState = makeState(returnByteLinearBot);
-        }
 
+            System.out.print(linearBotState.getString());
+
+//                 returnByteElevator = readByteFromAddr(elevatorRobot, cmdStqry.getCmdAddr(), 5);
+//                elevatorState = makeState(returnByteElevator);
+            //Check if StateRequest is for elevator robot
+            /* if (cmdStqry.forElevatorRobot())
+            {
+                returnByteElevator = readByteFromAddr(elevatorRobot, cmdStqry.getCmdAddr(), 5);
+                //elevatorRobot.r
+                elevatorState = makeState(returnByteElevator);
+            }
+            //Check if StateRequest is for linear robot
+            if (cmdStqry.forLinearRobot())
+            {
+                returnByteLinearBot = readByteFromAddr(linearRobot, cmdStqry.getCmdAddr(), 5);
+                linearBotState = makeState(returnByteLinearBot);
+            }
+             */
+        } else if (request instanceof CalibParam)
+        {
+
+        }
         //Find the retrievend command and preform the State Update
         //updateState(cmdReg.findCommand(returnByteElevator[0]));
         // updateState(cmdReg.findCommand(returnByteLinear[0]));
@@ -171,23 +272,31 @@ public class I2CCommunication implements Runnable
     }
 
     /**
-     * Check for the readytorecieve state and trigger if both are ready
-     * Else trigger the states which are not ready to recieve
+     * Check for the readytorecieve state and trigger if both are ready Else
+     * trigger the states which are not ready to recieve
+     *
      * @param elevatorState The elevator State
      * @param linearBotState The linearbot state
      */
     private void checkStatesAndTrigger(Status elevatorState, Status linearBotState)
     {
-        if (elevatorState.getClass().equals(ReadyToRecieve.class) && linearBotState.getClass().equals(ReadyToRecieve.class))
+        System.out.println("Checking states");
+       /*
+        if (elevatorState.equals(State.ReadyToRecieve) && linearBotState.equals(State.ReadyToRecieve))
         {
             //TODO: Trigger ready to recieve
-        } else if (!(elevatorState.getClass().equals(ReadyToRecieve.class)))
+            System.out.println("ReadyToRecieve triggered");
+        } else if (!(elevatorState.equals(State.ReadyToRecieve)))
+        {
+            //TODO: Trigger this state / send notify
+            System.out.println("Elevator state triggered");
+        } else if (!(linearBotState.equals(State.ReadyToRecieve)))
         {
             //TODO: Trigger this state
-        } else if (!(linearBotState.getClass().equals(ReadyToRecieve.class)))
-        {
-            //TODO: Trigger this state
+            System.out.println("LinearBotState triggered");
         }
+        */
+        System.out.println("Checking done");
     }
 
     /**
@@ -196,14 +305,53 @@ public class I2CCommunication implements Runnable
      * @param stateByte Statebyte to create state from
      * @return Returns the created state, else null!
      */
+    //TODO: MAKE ENUM TO DECIDE WHICH STATUS HAS BEEN SENT FROM ARDUINO
     public Status makeState(byte[] stateByte)
     {
-        Status returnState = statusMap.get(stateByte[0]);
-        if (returnState != null)
-        {
-            returnState.putValue(stateByte);
-        }
+        byte cmdAddr = stateByte[0];
+        Status returnState = null;
+        System.out.println("State addr: ");
+        System.out.print(cmdAddr);
 
+        State state = State.get(cmdAddr);
+
+        System.out.println("Value:");
+
+        System.out.println(state.getStateValue());
+
+     
+
+        if (state.equals(state.Busy))
+        {
+            System.out.println("State equals busy");
+            returnState = new Busy(stateByte.length - 1);
+        } 
+        else if (state.equals(state.EMC))
+        {
+            System.out.println("State equals EMC");
+            returnState = new EMC(stateByte.length - 1);
+        } 
+        else if (state.equals(state.ReadyToRecieve))
+        {
+            System.out.println("State equals Ready");
+            returnState = new ReadyToRecieve(stateByte.length - 1);
+        }
+         else if (state.equals(state.ENCODER_OUT_OF_SYNC))
+        {
+            System.out.println("State equals encoder");
+            returnState = new EncoderOutOfSync(stateByte.length - 1);
+        }
+         else if (state.equals(state.ENCODER_OUT_OF_RANGE))
+        {
+            System.out.println("State equals encoder our of range");
+            returnState = new EncoderOutOfRange(stateByte.length - 1);
+        }
+        
+        
+        System.out.println("Return state");
+        System.out.println(returnState.getStatusAddress());
+        System.out.println(returnState.getString());
+        
         return returnState;
     }
 
@@ -244,6 +392,7 @@ public class I2CCommunication implements Runnable
                 Logger.getLogger(I2CCommunication.class.getName()).log(Level.SEVERE, null, ex);
             }
             // get the I2C bus to communicate on
+            
             i2cbus = I2CFactory.getInstance(I2CbusNr);
             elevatorRobot = i2cbus.getDevice(CONTROLLER_ADDR_ELEVATOR);
             linearRobot = i2cbus.getDevice(CONTROLLER_ADDR_LINEARBOT);
@@ -295,14 +444,15 @@ public class I2CCommunication implements Runnable
                     .getName()).log(Level.SEVERE, null, ex);
         }
         //create array with exact amount of bytes
-        byte[] modifiedReturnByte = new byte[bytesRead];
+        /*  byte[] modifiedReturnByte = new byte[bytesRead];
         //Transfer the bytes
         for (int i = 0; i <= bytesRead; i++)
         {
             modifiedReturnByte[i] = returnByte[i];
         }
+         */
         //return the byte[]
-        return modifiedReturnByte;
+        return returnByte;
     }
 
     /**
@@ -415,7 +565,7 @@ public class I2CCommunication implements Runnable
      */
     public void sendCommand(Commando cmd)
     {
-        writeCommand(cmd);
+
         /**
          * COMMANDS TO ARDUINO*
          */
@@ -497,34 +647,34 @@ public class I2CCommunication implements Runnable
     public void doMove(Commando cmd)
     {
         //Do the X-Y movement first and send to the controller
-        Move cmdMove = (Move) cmd;
+        Move cmdMove = new Move();
         byte[] xyByte = null;
         //Combine the xyByte from the cmd move
         if (cmdMove.getxValue() != null && cmdMove.getyValue() != null)
         {
-            xyByte = new byte[cmdMove.getxValue().length + cmdMove.getyValue().length];
+            xyByte = new byte[cmd.getNrOfBytes() + cmd.getNrOfBytes()];
             System.arraycopy(cmdMove.getxValue(), 0, xyByte, 0, cmdMove.getxValue().length);
             System.arraycopy(cmdMove.getyValue(), 0, xyByte, cmdMove.getxValue().length, cmdMove.getxValue().length);
         }
 
-        //Write the respective x-y-z values to the respective controllers
-        writeByteToAddr(linearRobot, xyByte, cmd.getCmdAddr());
-
+        //linearRobot.write(I2CbusNr, xyByte);
+        System.out.println("Sending do move command");
+        System.out.println(cmdMove.getCmdAddr());
+        writeByteToAddr(linearRobot, xyByte, cmdMove.getCmdAddr());
+        //writeByte(linearRobot, cmd.getCmdAddr());
+        //writeBytesWithSize(linearRobot, cmdMove.getxValue(), cmd.getNrOfBytes());
+        //writeBytesWithSize(linearRobot, cmdMove.getyValue(), 1);
         if (cmdMove.getzValue() != null)
         {
             writeByteToAddr(elevatorRobot, cmdMove.getzValue(), cmd.getCmdAddr());
         }
+        System.out.println("Sending done");
     }
 
     private void doCalibrate(Commando cmd)
     {
         writeByte(linearRobot, cmd.getCmdAddr());
-        writeByte(elevatorRobot, cmd.getCmdAddr());
-    }
-
-    private void writeCommand(Commando cmd)
-    {
-
+        // writeByte(elevatorRobot, cmd.getCmdAddr());
     }
 
     /**
@@ -545,6 +695,22 @@ public class I2CCommunication implements Runnable
             Logger.getLogger(I2CCommunication.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    /*
+    private void fillStatusList(ArrayList<Byte> statusList)
+    {
+        statusList.add(BUSY);
+        statusList.add(EMC);
+        statusList.add(ELEV_LIMIT_TRIGG);
+        statusList.add(ENCODER_OUT_OF_RANGE);
+        statusList.add(ENCODER_OUT_OF_SYNC);
+        statusList.add(FLAG_POS);
+        statusList.add(READY_TO_RECIEVE);
+        statusList.add(LINEARBOT_LMIT_TRIGG);
+        statusList.add(SAFETY_SWITCH_LOWER);
+        statusList.add(SAFETY_SWITCH_UPPER);
+        statusList.add(READY_TO_RECIEVE);
+    }
+    */
 
 }
 

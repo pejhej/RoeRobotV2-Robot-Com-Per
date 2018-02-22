@@ -11,10 +11,14 @@ package Status;
  */
 public class ElevatorLimitTrigg extends Status
 {
+      //Status name for this class
+    private static final String STATUS = "ELEVATOR_LIMIT_TRIGG";
+    //Address for this status
+    private static final byte COMMAND_ADDRESS = 0x63;
     
-    public ElevatorLimitTrigg(byte statusAddr, int bytes)
+    public ElevatorLimitTrigg( int bytes)
     {
-        super(statusAddr, bytes);
+        super(COMMAND_ADDRESS, bytes, STATUS);
     }
     
 }

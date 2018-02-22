@@ -16,11 +16,11 @@ public class StateRequest extends Commando
     private boolean elevatorRobot = false;
     private boolean linearRobot = false;
 
+     private static final byte COMMAND_ADDRESS = 0x30;
     
-    
-    public StateRequest(byte commandAddress)
+    public StateRequest()
     {
-        super(commandAddress);
+        super(COMMAND_ADDRESS);
     }
     
     public boolean forElevatorRobot()

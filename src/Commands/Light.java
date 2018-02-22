@@ -14,9 +14,11 @@ import Commands.Commando;
 public class Light extends Commando
 {
     
-    public Light(byte commandAddress)
+    private static final byte COMMAND_ADDRESS = 0x11;
+    
+    public Light( )
     {
-        super(commandAddress);
+        super(COMMAND_ADDRESS);
     }
     
 }

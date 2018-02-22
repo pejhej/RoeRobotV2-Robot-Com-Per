@@ -12,10 +12,15 @@ package Status;
  */
 public class ReadyToRecieve extends Status
 {
+      //Status name for this class
+    private static final String STATUS = "READY";
+    //Address for this status
+    private static final byte COMMAND_ADDRESS = 0x51;
     
-    public ReadyToRecieve(byte statusAddr, int bytes)
+        public ReadyToRecieve( int bytes)
     {
-        super(statusAddr, bytes);
+        super(COMMAND_ADDRESS, bytes, STATUS);
     }
+        
     
 }

@@ -12,10 +12,15 @@ package Status;
  */
 public class FlagPos extends Status
 {
+      //Status name for this class
+    private static final String STATUS = "FLAG_POS";
+    //Address for this status
+    private static final byte COMMAND_ADDRESS = 0x71;
     
-    public FlagPos(byte statusAddr, int bytes)
+    
+    public FlagPos( int bytes)
     {
-        super(statusAddr, bytes);
+        super(COMMAND_ADDRESS, bytes, STATUS);
     }
     
 }

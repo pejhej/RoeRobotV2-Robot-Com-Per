@@ -12,10 +12,14 @@ package Status;
  */
 public class LinearBotLimitTrigged extends Status
 {
+      //Status name for this class
+    private static final String STATUS = "LINEAR_BOT_LIMIT_TRIGGED";
+    //Address for this status
+    private static final byte COMMAND_ADDRESS = 0x64;
     
-    public LinearBotLimitTrigged(byte statusAddr, int bytes)
+    public LinearBotLimitTrigged( int bytes)
     {
-        super(statusAddr, bytes);
+        super(COMMAND_ADDRESS, bytes, STATUS);
     }
     
 }

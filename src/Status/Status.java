@@ -12,15 +12,20 @@ package Status;
  */
 public class Status 
 {
+    //Address for the status
     private final byte StatusAddress;
-   private  int nrOfBytes;
-   private boolean triggered;
+   //Number of bytes if other message then address is carried
+    private  int nrOfBytes;
+    
+   //private boolean triggered;
    
-    public  Status(byte statusAddr, int nrBytes)
+    private final String STATUS;
+    
+    public  Status(byte statusAddr, int nrBytes, String name)
             {
                 this.StatusAddress = statusAddr;
                 this.nrOfBytes = nrBytes;
-                triggered = false;
+                this.STATUS = name;
             }
     
 
@@ -34,15 +39,23 @@ public class Status
         return nrOfBytes;
     }
     
+    //TODO: OVERRIDE AND ADD IN THE CALIB PARAM.
     /**
      * Put the byte values where they are supposed to be. 
      * Should be overided in classes with multiple byte storage instead of only trigger bool
+     * 
      * @param val The given byte value 
      */
     public void putValue(byte[] val)
     {
-        if(val[1] != 0)
-            triggered = true;
-    
+        
     }
+    
+     public String getString()
+    {
+        return this.STATUS;
+    }
+     
+     
+     
 }

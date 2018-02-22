@@ -15,14 +15,18 @@ public class Acceleration extends Commando
 {
     private byte[] linearRobotAcclParam;
     private byte[] elevatorAcclParam;
-
+    
+    
+    private static final byte COMMAND_ADDRESS = 0x21;
    
-    public Acceleration(byte commandAddress)
+    public Acceleration()
     {
-        super(commandAddress);
+        super(COMMAND_ADDRESS);
         linearRobotAcclParam = null;
         elevatorAcclParam = null;
     }
+    
+    
     
     
      public byte[] getLinearRobotAcclParam()
