@@ -205,17 +205,22 @@ public class Parameters extends Status
     public void putValue(byte[] inputVal)
     {
         int lenghtCnt = inputVal.length;
+        System.out.println(lenghtCnt);
+        for(int i = 0; i<= lenghtCnt; ++i)
+            System.out.println(inputVal[i]);
+        
+        
         //Checks if there are multiple values, multiple values means its both x and y, maybe all
         if(inputVal.length > defaultByteRange)
         {
             /*Copying and setting the X byte[]*/
-            byte[] copy = new byte[inputVal.length/2];
+            byte[] copy = new byte[inputVal.length];
             System.arraycopy(inputVal, 0, copy, 0, defaultByteRange);
             this.setXByteArr(copy);
             lenghtCnt = lenghtCnt+defaultByteRange;
             
               /*Copying and setting the Y byte[]*/
-            copy = new byte[inputVal.length/2];
+            copy = new byte[inputVal.length];
             System.arraycopy(inputVal, defaultByteRange, copy, 0, defaultByteRange);
             this.setYByteArr(copy);
             lenghtCnt = lenghtCnt+defaultByteRange;

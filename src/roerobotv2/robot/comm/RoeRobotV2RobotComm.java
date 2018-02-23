@@ -56,14 +56,14 @@ public class RoeRobotV2RobotComm
      
      public RoeRobotV2RobotComm()
      {
-         threadPool = Executors.newScheduledThreadPool(MAX_CLIENT_THREADS);
+        // threadPool = Executors.newScheduledThreadPool(MAX_CLIENT_THREADS);
      }
      
      public void initRun()
      {
           I2CCommunication i2comm = new I2CCommunication();
-          
-          threadPool.execute(i2comm); 
+          i2comm.start();
+          //threadPool.execute(i2comm); 
           
         Move move = new Move();
         Move move2 = new Move();
@@ -116,7 +116,7 @@ public class RoeRobotV2RobotComm
         
         yval = 501;
          xval = 502;
-         byte[] vals = new byte[3];
+        /* byte[] vals = new byte[3];
          vals[0] = (byte)1;
          vals[1] = (byte)2;
          vals[2] = (byte)3;
@@ -126,6 +126,8 @@ public class RoeRobotV2RobotComm
          System.out.println(retSize);
         for(int i=1; i<retSize; ++i)
             System.out.println(retVal);
+         */
+        
        // i2comm.addSendQ(move);
       //  delay(2000);
         //i2comm.addSendQ(calib);
@@ -152,32 +154,45 @@ public class RoeRobotV2RobotComm
         //i2comm.addRecieveQ(strq);   
         //i2comm.addRecieveQ(calibparam);  
       //  delay(2000);
-        i2comm.addRecieveQ(calibparam);
+        
         
         Parameters param = new Parameters();
         
-        
-      //  delay(1000);
-     //   i2comm.addSendQ(move);
-      //   delay(3000);
+       /*
+          delay(1000);
+           System.out.println("Move");
+           
+        i2comm.addSendQ(move);
+         delay(3000);
+          System.out.println("Calib");
          i2comm.addSendQ(calib);
-     //    delay(3000);
+         delay(3000);
+         System.out.println("StateRequest, should be READY");
          i2comm.addRecieveQ(strq1); 
         delay(3000);
+        System.out.println("Move2");
          i2comm.addSendQ(move2);
          delay(3000);
+         System.out.println("StateRequest2, should be BUSY");
          i2comm.addRecieveQ(strq2);
          delay(3000);
+        */
+         System.out.println("Calib2");
          i2comm.addSendQ(calib2);
-            delay(3000);
-         i2comm.addRecieveQ(strq3);
+          delay(3000);
+        
+        //     System.out.println("StateRequest3, should be READY");
+        // i2comm.addRecieveQ(strq3);
+       //  delay(3000);
+         System.out.println("Ask for calib params");
+         i2comm.addRecieveQ(calibparam);
 //         i2comm.addSendQ(move2);
 //         i2comm.addSendQ(move3);
 //         i2comm.addSendQ(move4);
 //         System.out.println("Sending Move");
 //         i2comm.addSendQ(move5);
 //         delay(1000);
-         System.out.println("Sending request");
+        // System.out.println("Sending request");
          
 //        delay(1000);
 //         i2comm.addSendQ(move);

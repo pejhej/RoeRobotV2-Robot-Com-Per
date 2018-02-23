@@ -53,11 +53,10 @@ import java.util.LinkedList;
  *
  * @author PerEspen
  */
-public class I2CCommunication implements Runnable
+public class I2CCommunication extends Thread
 {
-
     /*FROM THE ARDUINO/Communication TO THE JAVA PROGRAM*/
- /*private static final byte BUSY = 0x50;
+    /*private static final byte BUSY = 0x50;
     private static final byte READY_TO_RECIEVE = 0x51;
     private static final byte EMC = 0x60;
     private static final byte SAFETY_SWITCH_UPPER = 0x61;
@@ -72,7 +71,7 @@ public class I2CCommunication implements Runnable
     //i2c-dev bus used
     private static final int I2CbusNr = 4;
     private static final byte CONTROLLER_ADDR_ELEVATOR = 0x02;
-    private static final byte CONTROLLER_ADDR_LINEARBOT = 0x01;
+    private static final byte CONTROLLER_ADDR_LINEARBOT = 0x03;
 
     //I2C Bus
     I2CBus i2cbus;
@@ -155,7 +154,7 @@ public class I2CCommunication implements Runnable
         //fillStatusList(statusList);
         elevatorState = null;
         linearBotState = null;
-        //initiate();
+        initiate();
     }
 
     @Override
@@ -247,7 +246,7 @@ public class I2CCommunication implements Runnable
             System.out.print("Making state");
           
 
-            System.out.print(linearBotState.getString());
+            //System.out.print(linearBotState.getString());
 
 //                 returnByteElevator = readByteFromAddr(elevatorRobot, cmdStqry.getCmdAddr(), 5);
 //                elevatorState = makeState(returnByteElevator);
@@ -749,7 +748,7 @@ public class I2CCommunication implements Runnable
         Move cmdMove = (Move) cmd;
         byte[] xyByte = null;
         //Combine the xyByte from the cmd move
-        if (cmdMove.getxValue() != null && cmdMove.getyValue() != null)
+        if ((cmdMove.getxValue() != null) && (cmdMove.getyValue() != null))
         {
             xyByte = new byte[cmd.getNrOfBytes() + cmd.getNrOfBytes()];
             System.arraycopy(cmdMove.getxValue(), 0, xyByte, 0, cmdMove.getxValue().length);
@@ -757,16 +756,18 @@ public class I2CCommunication implements Runnable
             
             //Make new byte to send to store the byte[] length in the first byte
             byte[] sendByte = new byte[xyByte.length+1];
-            System.arraycopy(cmdMove.getNrOfBytesInByte(), 0, sendByte, 0, 1);
-            System.arraycopy(xyByte, 0, sendByte, 1, 1);
+                 sendByte[0] = cmdMove.getNrOfBytesInByte();
+              System.arraycopy(xyByte, 0, sendByte, 1, 1);
+            
+              System.out.println("Sending do move command");
+               System.out.println(cmdMove.getCmdAddr());
             //Write the bytes with the desired address
-            writeBytesToAddr(linearRobot, cmdMove.getCmdAddr(),sendByte);
+            writeBytesToAddr(linearRobot, cmdMove.getCmdAddr(),xyByte);
         }
         
         
         //linearRobot.write(I2CbusNr, xyByte);
-        System.out.println("Sending do move command");
-        System.out.println(cmdMove.getCmdAddr());
+      
         
         //writeByte(linearRobot, cmd.getCmdAddr());
         //writeBytesWithSize(linearRobot, cmdMove.getxValue(), cmd.getNrOfBytes());
