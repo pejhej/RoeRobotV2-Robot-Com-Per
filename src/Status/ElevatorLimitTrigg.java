@@ -16,9 +16,9 @@ public class ElevatorLimitTrigg extends Status
     //Address for this status
     private static final byte COMMAND_ADDRESS = 0x63;
     
-    public ElevatorLimitTrigg( int bytes)
+    public ElevatorLimitTrigg(  )
     {
-        super(COMMAND_ADDRESS, bytes, STATUS);
+        super(COMMAND_ADDRESS, STATUS);
     }
     
 }

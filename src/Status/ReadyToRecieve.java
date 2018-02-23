@@ -17,9 +17,9 @@ public class ReadyToRecieve extends Status
     //Address for this status
     private static final byte COMMAND_ADDRESS = 0x51;
     
-        public ReadyToRecieve( int bytes)
+        public ReadyToRecieve( )
     {
-        super(COMMAND_ADDRESS, bytes, STATUS);
+        super(COMMAND_ADDRESS , STATUS);
     }
         
     

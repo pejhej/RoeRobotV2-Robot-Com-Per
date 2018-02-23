@@ -18,9 +18,9 @@ public class EMC extends Status
     //Address for this status
     private static final byte COMMAND_ADDRESS = 0x60;
     
-    public EMC(int bytes)
+    public EMC( )
     {
-        super(COMMAND_ADDRESS, bytes, STATUS);
+        super(COMMAND_ADDRESS, STATUS);
     }
     
 }

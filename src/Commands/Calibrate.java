@@ -16,7 +16,7 @@ public class Calibrate extends Commando
     private byte[] xSteps;
     private byte[] ySteps;
     private byte[] zSteps;
-    private final static int byteSize = 2;
+    private final static int defaultByte = 0;
 
     
     private static final byte COMMAND_ADDRESS = 0x10;
@@ -24,49 +24,10 @@ public class Calibrate extends Commando
     public Calibrate( )
     {
         super(COMMAND_ADDRESS);
-        
+        super.setNrOfBytes(defaultByte);
     }
 
- 
-    
-    
-    
-      public byte[] getxSteps()
-    {
-        return xSteps;
-    }
 
-    public void setxSteps(byte[] xSteps)
-    {
-        this.xSteps = xSteps;
-    }
-
-    public byte[] getySteps()
-    {
-        return ySteps;
-    }
-
-    public void setySteps(byte[] ySteps)
-    {
-        this.ySteps = ySteps;
-    }
-
-    public byte[] getzSteps()
-    {
-        return zSteps;
-    }
-
-    public void setzSteps(byte[] zSteps)
-    {
-        this.zSteps = zSteps;
-    }
-    
-    
-        public static int getByteSize()
-    {
-        return byteSize;
-    }
-    
     
     
 }

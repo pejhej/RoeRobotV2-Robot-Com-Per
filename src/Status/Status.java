@@ -14,17 +14,21 @@ public class Status
 {
     //Address for the status
     private final byte StatusAddress;
+    
+    private boolean triggered = false;
    //Number of bytes if other message then address is carried
     private  int nrOfBytes;
+    
+    
+    private byte[] value;
     
    //private boolean triggered;
    
     private final String STATUS;
     
-    public  Status(byte statusAddr, int nrBytes, String name)
+    public  Status(byte statusAddr, String name)
             {
                 this.StatusAddress = statusAddr;
-                this.nrOfBytes = nrBytes;
                 this.STATUS = name;
             }
     
@@ -48,14 +52,30 @@ public class Status
      */
     public void putValue(byte[] val)
     {
-        
+        this.value = val;
     }
+    
+      public byte[] getValue()
+    {
+        return this.value;
+    }
+    
     
      public String getString()
     {
         return this.STATUS;
     }
      
-     
+     /**
+      * Trigger the status, set Status bool high or low depending on input val
+      * @param val Inputted value
+      */
+     public void trigger(byte[] val)
+     {
+         if(val[0] > 0)
+            this.triggered = true;
+         else
+             this.triggered = false;
+     }
      
 }

@@ -5,11 +5,13 @@
  */
 package roerobotv2.robot.comm;
 
+import Commands.CalibParam;
 import Commands.Calibrate;
 import Commands.Move;
 import Commands.StateRequest;
 import I2CCommunication.I2CCommunication;
 import Status.Busy;
+import Status.Parameters;
 import Status.ReadyToRecieve;
 import static com.pi4j.wiringpi.Gpio.delay;
 import java.util.concurrent.Executors;
@@ -71,6 +73,7 @@ public class RoeRobotV2RobotComm
         Move move6 = new Move();
         
         Calibrate calib = new Calibrate();
+        Calibrate calib2 = new Calibrate();
         
         /*byte[] xval = new byte[1];
                 xval[0] = 20;
@@ -113,9 +116,16 @@ public class RoeRobotV2RobotComm
         
         yval = 501;
          xval = 502;
-         move5.setShortXValue(xval);
-        move5.setShortYValue(yval);
-        
+         byte[] vals = new byte[3];
+         vals[0] = (byte)1;
+         vals[1] = (byte)2;
+         vals[2] = (byte)3;
+         move5.setValue(vals);
+         byte[] retVal = move5.getValue();
+         byte retSize = retVal[0];
+         System.out.println(retSize);
+        for(int i=1; i<retSize; ++i)
+            System.out.println(retVal);
        // i2comm.addSendQ(move);
       //  delay(2000);
         //i2comm.addSendQ(calib);
@@ -129,21 +139,38 @@ public class RoeRobotV2RobotComm
        StateRequest strq = new StateRequest();
        StateRequest strq1 = new StateRequest();
        StateRequest strq2 = new StateRequest();
+       StateRequest strq3 = new StateRequest();
          System.out.println("Sending request");
-
+         
+         CalibParam calibparam = new CalibParam();
+         
      //  i2comm.addRecieveQ(strq);
       // i2comm.addSendQ(move);
 //       i2comm.addSendQ(move2);
 //       i2comm.addSendQ(move3);
          System.out.println(strq.getCmdAddr());       
         //i2comm.addRecieveQ(strq);   
-        delay(1000);
-        i2comm.addSendQ(move);
-         i2comm.addRecieveQ(strq);  
+        //i2comm.addRecieveQ(calibparam);  
+      //  delay(2000);
+        i2comm.addRecieveQ(calibparam);
+        
+        Parameters param = new Parameters();
+        
+        
+      //  delay(1000);
+     //   i2comm.addSendQ(move);
+      //   delay(3000);
          i2comm.addSendQ(calib);
-        i2comm.addRecieveQ(strq1);  
+     //    delay(3000);
+         i2comm.addRecieveQ(strq1); 
+        delay(3000);
          i2comm.addSendQ(move2);
-         i2comm.addRecieveQ(strq2);  
+         delay(3000);
+         i2comm.addRecieveQ(strq2);
+         delay(3000);
+         i2comm.addSendQ(calib2);
+            delay(3000);
+         i2comm.addRecieveQ(strq3);
 //         i2comm.addSendQ(move2);
 //         i2comm.addSendQ(move3);
 //         i2comm.addSendQ(move4);

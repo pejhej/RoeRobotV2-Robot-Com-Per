@@ -18,9 +18,9 @@ public class FlagPos extends Status
     private static final byte COMMAND_ADDRESS = 0x71;
     
     
-    public FlagPos( int bytes)
+    public FlagPos(  )
     {
-        super(COMMAND_ADDRESS, bytes, STATUS);
+        super(COMMAND_ADDRESS, STATUS);
     }
     
 }

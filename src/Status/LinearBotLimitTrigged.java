@@ -17,9 +17,9 @@ public class LinearBotLimitTrigged extends Status
     //Address for this status
     private static final byte COMMAND_ADDRESS = 0x64;
     
-    public LinearBotLimitTrigged( int bytes)
+    public LinearBotLimitTrigged( )
     {
-        super(COMMAND_ADDRESS, bytes, STATUS);
+        super(COMMAND_ADDRESS , STATUS);
     }
     
 }

@@ -17,9 +17,9 @@ public class Busy extends Status
     
     private static final byte COMMAND_ADDRESS = 0x50;
     
-    public Busy(int bytes)
+    public Busy( )
     {
-        super(COMMAND_ADDRESS, bytes, STATUS);
+        super(COMMAND_ADDRESS, STATUS);
     }
     
     

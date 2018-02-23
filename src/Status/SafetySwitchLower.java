@@ -19,9 +19,9 @@ public class SafetySwitchLower extends Status
     //Address for this status
     private static final byte COMMAND_ADDRESS = 0x61;
  
-    public SafetySwitchLower( int bytes)
+    public SafetySwitchLower( )
     {
-        super(COMMAND_ADDRESS, bytes, STATUS);
+        super(COMMAND_ADDRESS, STATUS);
     }
     
 }

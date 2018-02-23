@@ -17,9 +17,9 @@ public class EncoderOutOfRange extends Status
     //Address for this status
     private static final byte COMMAND_ADDRESS = 0x66;
     
-    public EncoderOutOfRange( int bytes)
+    public EncoderOutOfRange(  )
     {
-        super(COMMAND_ADDRESS, bytes, STATUS);
+        super(COMMAND_ADDRESS, STATUS);
     }
     
 }

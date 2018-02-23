@@ -31,7 +31,9 @@ public class Commando
 {
     //Class fields 
     private final byte commandAddress;
+    //First input in value is the length of the byte[]
     private byte[] value;
+    //Default is 1 bytes
     private int nrOfBytes = 1;
     
     //Flag for what controller this command is designated
@@ -61,6 +63,8 @@ public class Commando
         return this.commandAddress;
     }
     
+    
+    /**INTEGER VALUES SETTER / GETTER **/
     /**
      * Set the byte[] value with an int of 2 significant numbers
      * @param intValue The int to set to value
@@ -70,6 +74,7 @@ public class Commando
         ByteBuffer dbuf = ByteBuffer.allocate(Integer.SIZE/8);
         dbuf.putInt(intValue);
          value = dbuf.array(); // { 0, 1 }
+         setNrOfBytes(dbuf.capacity());
     }
 
     /**
@@ -81,9 +86,22 @@ public class Commando
         byte[] arr = value;
         ByteBuffer wrapped = ByteBuffer.wrap(arr); // big-endian by default
         int num = wrapped.getInt();// 1
-        
         return num;
     }
+     
+     /**
+     * Set the byte[] value with an int of 2 significant numbers
+     * @param intValue The int to set to value
+     */
+    public void setShortValue(short intValue)
+    {
+        ByteBuffer dbuf = ByteBuffer.allocate(Short.BYTES);
+        dbuf.putShort(intValue);
+         setValue(dbuf.array()); // { 0, 1 }
+    }
+
+ 
+ 
         
    
      /**
@@ -92,7 +110,17 @@ public class Commando
       */
       public void setValue(byte[] value)
     {
-       this.value = value;
+        //The length of the given byte[]
+        byte incSize = (byte) value.length;
+        //Create big enough byte[] to store the inc []
+        this.value = new byte[incSize+1];
+        //Save the size of the byte in the first byte
+        this.value[0] = incSize;
+        
+        this.setNrOfBytes(incSize);
+        //Save the incomming byte[] value in the class value
+        for(int i=1; i<=incSize; ++i)
+            this.value[i] = value[(i-1)];
     }
       
       /**
@@ -105,27 +133,43 @@ public class Commando
     }
       
       
-       public byte getByteValue(int byteNr)
+      /**
+       * Returns the byte from the given index value, Null if value not presetn
+       * @param byteNr the index of where to return byte
+       * @return 
+       */
+       public byte getByteIndexValue(int byteNr)
     {
-       return this.value[byteNr];
+        if(getNrOfBytes()>= byteNr)
+            return this.value[byteNr];
+       
+        return 0;
     }
+
        
        
-    public void setValue(byte b)
-    {
-       this.value[0] = b;
-    }
-    
-    
-    
-
-
-
+/**
+ * Return the nr of bytes in the value
+ * @return Return the nr of bytes in value as int
+ */
     public int getNrOfBytes()
     {
         return nrOfBytes;
     }
-
+    
+    /**
+ * Return the nr of bytes in the value
+ * @return Return the nr of bytes in value as int
+ */
+    public byte getNrOfBytesInByte()
+    {
+         return (byte) getNrOfBytes(); // { 0, 1 }
+    }
+    
+    /**
+     * Set the number of bytes in the value[]
+     * @param nrOfBytes The integer to set nrOfBytes to
+     */
     public void setNrOfBytes(int nrOfBytes)
     {
         this.nrOfBytes = nrOfBytes;

@@ -13,9 +13,12 @@ public class CalibParam extends Commando
 {
     private static final byte COMMAND_ADDRESS = 0x31;
     
+    private int defaultBytes = 4;
+    
     public CalibParam( )
     {
         super(COMMAND_ADDRESS);
+        super.setNrOfBytes(defaultBytes);
         
     }
 }
