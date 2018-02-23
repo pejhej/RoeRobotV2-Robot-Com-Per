@@ -637,9 +637,11 @@ public class I2CCommunication implements Runnable
     {
         System.out.print("Commando address: ");
         System.out.println(cmd.getCmdAddr());
+        
         /**
          * COMMANDS TO ARDUINO*
          */
+        
         /***Checking all the possible commands***/
         //Check for move command
         if (cmd instanceof Move)
@@ -659,10 +661,12 @@ public class I2CCommunication implements Runnable
                 this.writeBytesToAddr(linearRobot, cmd.getCmdAddr(), cmdAccl.getLinearRobotAcclParam());
             }
 
-        } //Check for calibrate command and do the tasks   
+        } 
+        //Check for calibrate command and do the tasks   
+        //Send the calibrate command
         else if (cmd instanceof Calibrate)
         {
-            doCalibrate(cmd);
+            writeByte(linearRobot, cmd.getCmdAddr());
         } //Check for suction command
         else if (cmd instanceof Suction)
         {
@@ -737,8 +741,7 @@ public class I2CCommunication implements Runnable
 
     /**
      * Do the move command as specified
-     *
-     * @param cmd The command with attached values etc
+     * @param cmd The command with attached values
      */
     public void doMove(Commando cmd)
     {
@@ -751,8 +754,13 @@ public class I2CCommunication implements Runnable
             xyByte = new byte[cmd.getNrOfBytes() + cmd.getNrOfBytes()];
             System.arraycopy(cmdMove.getxValue(), 0, xyByte, 0, cmdMove.getxValue().length);
             System.arraycopy(cmdMove.getyValue(), 0, xyByte, cmdMove.getxValue().length, cmdMove.getxValue().length);
-            writeByteToAddr(linearRobot,cmdMove.getNrOfBytesInByte(), cmdMove.getCmdAddr());
-            writeBytes(linearRobot, xyByte);
+            
+            //Make new byte to send to store the byte[] length in the first byte
+            byte[] sendByte = new byte[xyByte.length+1];
+            System.arraycopy(cmdMove.getNrOfBytesInByte(), 0, sendByte, 0, 1);
+            System.arraycopy(xyByte, 0, sendByte, 1, 1);
+            //Write the bytes with the desired address
+            writeBytesToAddr(linearRobot, cmdMove.getCmdAddr(),sendByte);
         }
         
         
@@ -771,11 +779,6 @@ public class I2CCommunication implements Runnable
         System.out.println("Sending done");
     }
 
-    private void doCalibrate(Commando cmd)
-    {
-        writeByte(linearRobot, cmd.getCmdAddr());
-        
-    }
 
     /**
      * Write specified bytes to the device
