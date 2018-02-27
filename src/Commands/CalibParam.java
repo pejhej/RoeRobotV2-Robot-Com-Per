@@ -13,7 +13,7 @@ public class CalibParam extends Commando
 {
     private static final byte COMMAND_ADDRESS = 0x31;
     
-    private int defaultBytes = 4;
+    private int defaultBytes = 10;
     
     public CalibParam( )
     {
