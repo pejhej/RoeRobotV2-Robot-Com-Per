@@ -14,9 +14,12 @@ import Status.Busy;
 import Status.Parameters;
 import Status.ReadyToRecieve;
 import static com.pi4j.wiringpi.Gpio.delay;
+import static java.lang.Thread.sleep;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -32,7 +35,8 @@ public class RoeRobotV2RobotComm
    private static final byte LIGHT = 0x11;  
    private static final byte VELOCITY = 0x20;  
    private static final byte ACCELERATION = 0x21;  
-   private static final byte GRIPPERCONTROL = 0x22;  
+   private static final byte LOCKGRIPPER = 0x22;  
+   private static final byte RELEASEGRIPPER = 0x23;  
    private static final byte STATEREQUEST = 0x30;
    private static final byte CALIB_PARAM = 0x31;
    
@@ -89,16 +93,20 @@ public class RoeRobotV2RobotComm
        
            short xval = 101;
         short yval = 102;
+          short zval = 103;
      
         move.setShortXValue(xval);
         move.setShortYValue(yval);
+        move.setShortZValue(zval);
 
          //i2comm.addSendQ(move);
          
          yval = 201;
          xval = 202;
+         zval = 203;
          move2.setShortXValue(xval);
         move2.setShortYValue(yval);
+         move2.setShortZValue(zval);
        // i2comm.addSendQ(move2);
 
          yval = 301;
@@ -160,37 +168,54 @@ public class RoeRobotV2RobotComm
         
        
           
-           System.out.println("Move");
+     //     System.out.println("Move");
            
-        i2comm.addSendQ(move);
-        // delay(50);
-         System.out.println("StateRequest1, should be READY");
+       // i2comm.addSendQ(move);
+         
+        this.sleeping(5000);
+         System.out.println("StateRequest1, should be BUSY");
          i2comm.addRecieveQ(strq1); 
-         // delay(50);
+         
+         this.sleeping(50);
+        System.out.println("-------------------------");
           System.out.println("Calib");
          i2comm.addSendQ(calib);
+     
         // delay(50);
        
-        System.out.println("Move2");
-         i2comm.addSendQ(move2);
+        this.sleeping(50);
+        
+ //       System.out.println("Move2");
+ //        i2comm.addSendQ(move2);
         // delay(50);
-         System.out.println("StateRequest2, should be BUSY");
+        
+        this.sleeping(50);
+        System.out.println("-------------------------");
+        System.out.println("StateRequest2, should be BUSY");
          i2comm.addRecieveQ(strq2);
-       //  delay(50);
-        
-         System.out.println("Calib2");
-         i2comm.addSendQ(calib);
-         // delay(50);
-        
-        //     System.out.println("StateRequest3, should be READY");
-        // i2comm.addRecieveQ(strq3);
-       //  delay(3000);
-         System.out.println("Ask for calib params");
-         i2comm.addRecieveQ(calibparam);
          
-         i2comm.addSendQ(move2);
+                this.sleeping(50);
+                i2comm.addSendQ(move2);
+                
+        System.out.println("Calib2");
+         i2comm.addSendQ(calib);
+        
+         this.sleeping(50);
+         
+             System.out.println("StateRequest3, should be READY");
+            i2comm.addRecieveQ(strq3);
+       //  delay(3000);
+   //      System.out.println("Ask for calib params");
+   //      i2comm.addRecieveQ(calibparam);
+   /*      
+         
          i2comm.addSendQ(move3);
          i2comm.addSendQ(move4);
+         this.sleeping(50);
+         
+         i2comm.addSendQ(calib2);
+         
+         */
 //         System.out.println("Sending Move");
 //         i2comm.addSendQ(move5);
 //         delay(1000);
@@ -230,6 +255,19 @@ public class RoeRobotV2RobotComm
         RoeRobotV2RobotComm roeb = new RoeRobotV2RobotComm();
         roeb.initRun();
         
+       
+    }
+    
+    private void sleeping(long sleepTime)
+    {
+              try
+       {
+           // delay(50);
+           sleep(50);
+       } catch (InterruptedException ex)
+       {
+           Logger.getLogger(RoeRobotV2RobotComm.class.getName()).log(Level.SEVERE, null, ex);
+       }
        
     }
     

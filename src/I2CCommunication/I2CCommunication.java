@@ -9,7 +9,7 @@ import Commands.Acceleration;
 import Commands.CalibParam;
 import Commands.Calibrate;
 import Commands.Commando;
-import Commands.GripperControl;
+import Commands.LockGripper;
 import Commands.Light;
 import Commands.Move;
 import Commands.StateRequest;
@@ -71,7 +71,7 @@ public class I2CCommunication extends Thread
      */
     //i2c-dev bus used
     private static final int I2CbusNr = 4;
-    private static final byte CONTROLLER_ADDR_ELEVATOR = 0x02;
+    private static final byte CONTROLLER_ADDR_ELEVATOR = 0x05;
     private static final byte CONTROLLER_ADDR_LINEARBOT = 0x03;
 
     //I2C Bus
@@ -231,36 +231,17 @@ public class I2CCommunication extends Thread
         //Storing of bytes
         byte[] returnByteLinearBot = null;
         byte[] returnByteElevator = null;
-        //TODO: Fix this staterequest, should maybe be commando
+        //TODO: Fix this staterequest, should maybe be commando. MAYBE REMOVE THE CHECKING
         //When request commando is staterequest both arduinos should be addressed
-
+            /*
         if (request instanceof StateRequest)
         {
             StateRequest cmdStqry = (StateRequest) request;
             System.out.print("Sending request and waiting for query: ");
             returnByteLinearBot = readByteFromAddr(linearRobot, cmdStqry.getCmdAddr(), cmdStqry.getNrOfBytes());
+            returnByteElevator = readByteFromAddr(elevatorRobot, cmdStqry.getCmdAddr(), cmdStqry.getNrOfBytes());
+                 
 
-            System.out.print("Byte read:");
-            System.out.println(returnByteLinearBot[0]);
-            System.out.println("Making state");
-
-            //System.out.print(linearBotState.getString());
-//                 returnByteElevator = readByteFromAddr(elevatorRobot, cmdStqry.getCmdAddr(), 5);
-//                elevatorState = makeState(returnByteElevator);
-            //Check if StateRequest is for elevator robot
-            /* if (cmdStqry.forElevatorRobot())
-            {
-                returnByteElevator = readByteFromAddr(elevatorRobot, cmdStqry.getCmdAddr(), 5);
-                //elevatorRobot.r
-                elevatorState = makeState(returnByteElevator);
-            }
-            //Check if StateRequest is for linear robot
-            if (cmdStqry.forLinearRobot())
-            {
-                returnByteLinearBot = readByteFromAddr(linearRobot, cmdStqry.getCmdAddr(), 5);
-                linearBotState = makeState(returnByteLinearBot);
-            }
-             */
         } else if (request instanceof CalibParam)
         {
             //Cast to get the correct command address
@@ -269,32 +250,47 @@ public class I2CCommunication extends Thread
 
             //TODO: Commented out returnbyte elevator;
             returnByteLinearBot = readByteFromAddr(linearRobot, cmdCalibPar.getCmdAddr(), cmdCalibPar.getNrOfBytes());
-            //returnByteElevator = readByteFromAddr(elevatorRobot,cmdCalibPar.getCmdAddr() , cmdCalibPar.getNrOfBytes());
+            returnByteElevator = readByteFromAddr(elevatorRobot,cmdCalibPar.getCmdAddr() , cmdCalibPar.getNrOfBytes());
 
         } //If nothing of the Request commands were recognised, just send a general request
-        else
+        */
+        if(request != null)
         {
             returnByteLinearBot = readByteFromAddr(linearRobot, request.getCmdAddr(), request.getNrOfBytes());
-            //returnByteElevator = readByteFromAddr(elevatorRobot,cmdCalibPar.getCmdAddr() , cmdCalibPar.getNrOfBytes());
+            returnByteElevator = readByteFromAddr(elevatorRobot, request.getCmdAddr() , request.getNrOfBytes());
         }
 
+        /***Making the states and putting the payload inside the status message***/
         if (returnByteLinearBot != null)
         {
-            System.out.print("Byte read:");
-            System.out.print(returnByteLinearBot[0]);
-            System.out.print("Making state");
+            System.out.print("1st byte from returnByteLinearBot:");
+            System.out.println(returnByteLinearBot[0]);
+            System.out.print("Making linear bot state");
             linearBotState = makeState(returnByteLinearBot);
+            System.out.print("Made state: ");
+ //           System.out.print(linearBotState.getString());
             //Put the value read from the i2c comm to the desired state
             //Removes first byte because that is address ant not value
-            linearBotState.putValue(Arrays.copyOfRange(returnByteLinearBot, 1, returnByteLinearBot.length));
-            System.out.print("State values: ");
-
+            byte[] valueArr = Arrays.copyOfRange(returnByteLinearBot, 1, returnByteLinearBot.length);
+            //Checking if there is any values to put in the status
+            if(valueArr.length != 0 && linearBotState != null)
+            linearBotState.putValue(valueArr);
         }
+        
         if (returnByteElevator != null)
         {
+             System.out.print("1st byte from returnByteElevatorBot:");
+            System.out.println(returnByteElevator[0]);
+            System.out.print("Making elevator bot state");
             elevatorState = makeState(returnByteElevator);
-            elevatorState.putValue(Arrays.copyOfRange(returnByteLinearBot, 1, returnByteLinearBot.length)
-            );
+            System.out.print("Made state: ");
+          //  System.out.print(elevatorState.getString());
+         
+            
+             byte[] valueArr = Arrays.copyOfRange(returnByteElevator, 1, returnByteElevator.length);
+            //Checking if there is any values to put in the status
+            if(valueArr.length != 0 && elevatorState != null)
+            elevatorState.putValue(valueArr);
         }
 
         //Find the retrievend command and preform the State Update
@@ -314,19 +310,22 @@ public class I2CCommunication extends Thread
      */
     private void checkStatesAndTrigger(Status elevatorState, Status linearBotState)
     {
-        System.out.println("Checking states");
         //Safeguarding against null-pointer
         if (elevatorState != null && linearBotState != null)
         {
-            if (elevatorState.equals(State.ReadyToRecieve) && linearBotState.equals(State.ReadyToRecieve))
+            System.out.println(elevatorState.equals(State.ReadyToRecieve));
+            if((Byte.compare(elevatorState.getStatusAddress(), State.ReadyToRecieve.getStateValue()) == 0) && (Byte.compare(linearBotState.getStatusAddress(), State.ReadyToRecieve.getStateValue()) == 0))
             {
+                
                 //TODO: Trigger ready to recieve
                 System.out.println("ReadyToRecieve triggered");
-            } else if (!(elevatorState.equals(State.ReadyToRecieve)))
+            } 
+            if (Byte.compare(elevatorState.getStatusAddress(), State.ReadyToRecieve.getStateValue()) != 0)
             {
                 //TODO: Trigger this state / send notify
                 System.out.println("Elevator state triggered");
-            } else if (!(linearBotState.equals(State.ReadyToRecieve)))
+            } 
+            if (Byte.compare(linearBotState.getStatusAddress(), State.ReadyToRecieve.getStateValue()) != 0)
             {
                 //TODO: Trigger this state
                 System.out.println("LinearBotState triggered");
@@ -384,9 +383,9 @@ public class I2CCommunication extends Thread
                 returnState = new Parameters();
             }
 
-            System.out.println("Return state: ");
+            System.out.print("Return state: ");
             System.out.print(returnState.getStatusAddress());
-            System.out.println(returnState.getString());
+            System.out.print(", " + returnState.getString());
         }
         else
             System.out.println("State not recognised!!!");
@@ -677,6 +676,7 @@ public class I2CCommunication extends Thread
         else if (cmd instanceof Calibrate)
         {
             writeByte(linearRobot, cmd.getCmdAddr());
+            writeByte(elevatorRobot, cmd.getCmdAddr());
         } //Check for suction command
         else if (cmd instanceof Suction)
         {
@@ -691,10 +691,10 @@ public class I2CCommunication extends Thread
             Suction cmdSuction = (Suction) cmd;
             this.writeBytesToAddr(linearRobot, cmd.getCmdAddr(), cmd.getValue());
             this.writeBytesToAddr(elevatorRobot, cmd.getCmdAddr(), cmd.getValue());
-        } else if (cmd instanceof GripperControl)
+        } else if (cmd instanceof LockGripper)
         {
             //Control the gripper
-            GripperControl cmdGripper = (GripperControl) cmd;
+            LockGripper cmdGripper = (LockGripper) cmd;
             this.writeBytesToAddr(linearRobot, cmdGripper.getCmdAddr(), cmdGripper.getValue());
             this.writeBytesToAddr(elevatorRobot, cmdGripper.getCmdAddr(), cmdGripper.getValue());
         } else if (cmd instanceof Light)
@@ -764,24 +764,29 @@ public class I2CCommunication extends Thread
 
             //Make new byte to send to store the byte[] length in the first byte
             byte[] sendByte = new byte[xyByte.length + 1];
-            sendByte[0] = cmdMove.getNrOfBytesInByte();
-            System.arraycopy(xyByte, 0, sendByte, 1, 1);
+            sendByte[0] = (byte) ((byte) cmdMove.getxValue().length + cmdMove.getyValue().length);
+            System.arraycopy(xyByte, 0, sendByte, 1, sendByte[0]);
 
-            System.out.println("Sending do move command");
-            System.out.println(cmdMove.getCmdAddr());
+            System.out.println("Sending do move command to linearbot");
             //Write the bytes with the desired address
-            writeBytesToAddr(linearRobot, cmdMove.getCmdAddr(), xyByte);
+          writeBytesToAddr(linearRobot, cmdMove.getCmdAddr(), sendByte);
+          
         }
-
-        //linearRobot.write(I2CbusNr, xyByte);
-        //writeByte(linearRobot, cmd.getCmdAddr());
-        //writeBytesWithSize(linearRobot, cmdMove.getxValue(), cmd.getNrOfBytes());
-        //writeBytesWithSize(linearRobot, cmdMove.getyValue(), 1);
+        
+        //Z value should be written to elevator robot
+        
         if (cmdMove.getzValue() != null)
         {
-            writeByteToAddr(linearRobot, cmdMove.getNrOfBytesInByte(), cmdMove.getCmdAddr());
-            writeBytes(linearRobot, xyByte);
+            byte[] sendByte = new byte[xyByte.length + 1];
+            sendByte[0] = (byte) cmdMove.getzValue().length;
+            
+            System.arraycopy(cmdMove.getzValue(), 0, sendByte, 1, sendByte[0]);
+            
+              System.out.println("Sending do move command to elevatorbot");
+            writeBytesToAddr(elevatorRobot, cmdMove.getCmdAddr(), cmdMove.getzValue());
+           
         }
+        
         System.out.println("Sending done");
     }
 

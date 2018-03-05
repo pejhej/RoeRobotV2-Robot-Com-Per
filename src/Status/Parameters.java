@@ -275,6 +275,7 @@ public class Parameters extends Status
     @Override
     public void putValue(byte[] inputVal)
     {
+        ByteBuffer bb; 
         int lenghtCnt = 0;
         System.out.println(lenghtCnt);
       

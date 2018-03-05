@@ -163,7 +163,9 @@ public class Commando
  */
     public byte getNrOfBytesInByte()
     {
-         return (byte) getNrOfBytes(); // { 0, 1 }
+        int counter;
+        
+         return (byte) this.getValue().length; // { 0, 1 }
     }
     
     /**

@@ -13,12 +13,12 @@ package Commands;
  *
  * @author PerEspen
  */
-public class GripperControl extends Commando
+public class LockGripper extends Commando
 {
      private static final byte COMMAND_ADDRESS = 0x22;
 
      
-    public GripperControl( )
+    public LockGripper( )
     {
         super(COMMAND_ADDRESS);
     }

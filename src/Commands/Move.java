@@ -109,6 +109,31 @@ public class Move extends Commando
          setyValue(dbuf.array()); // { 0, 1 }
     }
     
+            /**
+     * Set the byte[] value with an int of 2 significant numbers
+     * @param shortValue to set to value
+     */
+    public void setShortZValue(short shortValue)
+    {
+        ByteBuffer dbuf = ByteBuffer.allocate(Short.BYTES);
+        dbuf.putShort(shortValue);
+         setzValue(dbuf.array()); // { 0, 1 }
+    }
+    
+    
+    
+        /**
+ * Return the nr of bytes in the value
+ * @return Return the nr of bytes in value as int
+ */
+    @Override
+    public byte getNrOfBytesInByte()
+    {
+        int counter;
+        int sum = getxValue().length + getzValue().length + getyValue().length;
+        
+         return (byte) sum ; // { 0, 1 }
+    }
     
     
 }
