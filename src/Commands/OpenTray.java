@@ -9,19 +9,14 @@ package Commands;
  *
  * @author PerEspen
  */
-/**
- *
- * @author PerEspen
- */
-public class ReleaseGripper extends Commando
+public class OpenTray extends Commando
 {
-     private static final byte COMMAND_ADDRESS = 0x23;
+    private static final byte COMMAND_ADDRESS = 0x23;
 
      
-    public ReleaseGripper( )
+    public OpenTray( )
     {
         super(COMMAND_ADDRESS);
     }
-
     
 }

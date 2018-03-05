@@ -65,13 +65,36 @@ public class Move extends Commando
      * Set the byte[] value with an int of 2 significant numbers
      * @param intValue The int to set to value
      */
+    public void setIntXValue(int intValue)
+    {
+        ByteBuffer dbuf = ByteBuffer.allocate(Integer.BYTES);
+        dbuf.putInt(intValue);
+         setxValue(dbuf.array()); // { 0, 1 }
+    }
+
+      /**
+     * Set the byte[] value with an int of 2 significant numbers
+     * @param intValue The int to set to value
+     */
     public void setIntYValue(int intValue)
     {
-        ByteBuffer dbuf = ByteBuffer.allocate(Integer.SIZE/8);
+        ByteBuffer dbuf = ByteBuffer.allocate(Integer.BYTES);
         dbuf.putInt(intValue);
          setyValue(dbuf.array()); // { 0, 1 }
     }
-
+    
+      /**
+     * Set the byte[] value with an int of 2 significant numbers
+     * @param intValue The int to set to value
+     */
+    public void setIntZValue(int intValue)
+    {
+        ByteBuffer dbuf = ByteBuffer.allocate(Integer.BYTES);
+        dbuf.putInt(intValue);
+         setzValue(dbuf.array()); // { 0, 1 }
+    }
+    
+    
     /**
      * Returns byte[] value as int
      * @return  Returns byte[] value as int 

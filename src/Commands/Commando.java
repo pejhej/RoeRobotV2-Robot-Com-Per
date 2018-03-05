@@ -71,7 +71,7 @@ public class Commando
      */
     public void setIntValue(int intValue)
     {
-        ByteBuffer dbuf = ByteBuffer.allocate(Integer.SIZE/8);
+        ByteBuffer dbuf = ByteBuffer.allocate(Integer.BYTES);
         dbuf.putInt(intValue);
          value = dbuf.array(); // { 0, 1 }
          setNrOfBytes(dbuf.capacity());
@@ -100,7 +100,17 @@ public class Commando
          setValue(dbuf.array()); // { 0, 1 }
     }
 
- 
+    /**
+     * Returns byte[] value as short
+     * @return  Returns byte[] value as short 
+     */
+     public short getShortValue()
+    {
+        byte[] arr = value;
+        ByteBuffer wrapped = ByteBuffer.wrap(arr); // big-endian by default
+        short num = wrapped.getShort();// 1
+        return num;
+    }
  
         
    
@@ -177,7 +187,21 @@ public class Commando
         this.nrOfBytes = nrOfBytes;
     }
 
-    
+    /**
+     * Return the payload of this command, with first byte as number of bytes in payload
+     * @return Return the payload including its size
+     */
+    public byte[] getByteWithSize()
+            {
+                //Create new byte array for added size to the value
+                byte[] returnByte = new byte[this.value.length + 1];
+                //Set the size in the spot in the byte array
+                returnByte[0] = this.getNrOfBytesInByte();
+                System.arraycopy(this.value, 0, returnByte, 1, this.value.length);
+             
+                
+                return returnByte;
+            }
    
     
 }

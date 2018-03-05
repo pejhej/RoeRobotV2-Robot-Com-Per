@@ -10,14 +10,14 @@ package roerobotyngve;
  *
  * @author Yngve
  */
-class Coodinate {
+class Cordinate {
 
     private int xCoord;
     private int yCoord;
     private int zCoord;
     
     
-    public Coodinate(int xCoord, int yCoord, int zCoord) {
+    public Cordinate(int xCoord, int yCoord, int zCoord) {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
         this.zCoord = zCoord;

@@ -7,6 +7,7 @@ package roerobotv2.robot.comm;
 
 import Commands.CalibParam;
 import Commands.Calibrate;
+import Commands.CloseTray;
 import Commands.Move;
 import Commands.StateRequest;
 import I2CCommunication.I2CCommunication;
@@ -166,13 +167,18 @@ public class RoeRobotV2RobotComm
         
         Parameters param = new Parameters();
         
+       CloseTray close = new CloseTray();
+       close.setIntValue(10);
        
+       System.out.println("close values");
+       System.out.println(close.getIntValue());
+       System.out.println(close.getValue());
           
      //     System.out.println("Move");
            
        // i2comm.addSendQ(move);
          
-        this.sleeping(5000);
+     /*   this.sleeping(5000);
          System.out.println("StateRequest1, should be BUSY");
          i2comm.addRecieveQ(strq1); 
          
@@ -204,6 +210,7 @@ public class RoeRobotV2RobotComm
          
              System.out.println("StateRequest3, should be READY");
             i2comm.addRecieveQ(strq3);
+       */
        //  delay(3000);
    //      System.out.println("Ask for calib params");
    //      i2comm.addRecieveQ(calibparam);

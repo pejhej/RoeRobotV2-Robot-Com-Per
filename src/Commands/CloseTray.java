@@ -9,19 +9,15 @@ package Commands;
  *
  * @author PerEspen
  */
-/**
- *
- * @author PerEspen
- */
-public class LockGripper extends Commando
+public class CloseTray extends Commando
 {
-     private static final byte COMMAND_ADDRESS = 0x22;
+    
+    private static final byte COMMAND_ADDRESS = 0x22;
 
      
-    public LockGripper( )
+    public CloseTray( )
     {
         super(COMMAND_ADDRESS);
     }
-
     
 }

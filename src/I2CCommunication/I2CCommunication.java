@@ -8,10 +8,11 @@ package I2CCommunication;
 import Commands.Acceleration;
 import Commands.CalibParam;
 import Commands.Calibrate;
+import Commands.CloseTray;
 import Commands.Commando;
-import Commands.LockGripper;
 import Commands.Light;
 import Commands.Move;
+import Commands.OpenTray;
 import Commands.StateRequest;
 import Commands.Suction;
 import Commands.Velocity;
@@ -691,13 +692,21 @@ public class I2CCommunication extends Thread
             Suction cmdSuction = (Suction) cmd;
             this.writeBytesToAddr(linearRobot, cmd.getCmdAddr(), cmd.getValue());
             this.writeBytesToAddr(elevatorRobot, cmd.getCmdAddr(), cmd.getValue());
-        } else if (cmd instanceof LockGripper)
+        } else if (cmd instanceof OpenTray)
         {
             //Control the gripper
-            LockGripper cmdGripper = (LockGripper) cmd;
-            this.writeBytesToAddr(linearRobot, cmdGripper.getCmdAddr(), cmdGripper.getValue());
-            this.writeBytesToAddr(elevatorRobot, cmdGripper.getCmdAddr(), cmdGripper.getValue());
-        } else if (cmd instanceof Light)
+            OpenTray cmdOpenTray = (OpenTray) cmd;
+            this.writeBytesToAddr(linearRobot, cmdOpenTray.getCmdAddr(), cmdOpenTray.getValue());
+            this.writeBytesToAddr(elevatorRobot, cmdOpenTray.getCmdAddr(), cmdOpenTray.getValue());
+        }
+         else if (cmd instanceof CloseTray)
+        {
+            //Control the gripper
+            CloseTray cmdCloseTray = (CloseTray) cmd;
+            this.writeBytesToAddr(linearRobot, cmdCloseTray.getCmdAddr(), cmdCloseTray.getValue());
+            this.writeBytesToAddr(elevatorRobot, cmdCloseTray.getCmdAddr(), cmdCloseTray.getValue());
+        }
+        else if (cmd instanceof Light)
         {
             //Turn light on/off
             Light cmdLight = (Light) cmd;
@@ -712,6 +721,9 @@ public class I2CCommunication extends Thread
         {
             //TODO: Maybe throw exception?
             System.out.println("THE COMMAND WAS NOT RECOGNISED");
+            
+            this.writeBytesToAddr(linearRobot, cmd.getCmdAddr(), cmd.getValue());
+            this.writeBytesToAddr(elevatorRobot, cmd.getCmdAddr(), cmd.getValue()); 
         }
         /**
          * COMMANDS "FROM" ARDUINO*
