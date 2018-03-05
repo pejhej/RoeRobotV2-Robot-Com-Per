@@ -28,6 +28,7 @@ import Status.Status;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Timer;
 import javafx.concurrent.Worker;
 
 
@@ -39,7 +40,13 @@ import javafx.concurrent.Worker;
  * @author Yngve & Per Espen
  */
 public class RoeAnalyserDevice {
-  
+
+    RoeAnalyserDevice()
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+   
     
     private enum State
     {
@@ -98,16 +105,21 @@ public class RoeAnalyserDevice {
     int defaultSuckHeight = 40;
     int defaultHeight = 50;
     
+    //The timer for this object
+    Timer timer = new Timer();
+    
     
       //Holds the current status sent by the roerobot
     Status currentStatus;
+    
     
     //I2c communication 
     I2CCommunication i2cComm;
     
     RoeAnalyserDevice(I2CCommunication i2c)
     {
-        i2cComm = i2c;    
+        i2cComm = i2c;
+     
     }
 
     
@@ -164,8 +176,6 @@ public class RoeAnalyserDevice {
         
         //Send the close tray commando
         i2cComm.addSendQ(cmdOpenTray);
-        
-
     }
 
     
@@ -179,6 +189,7 @@ public class RoeAnalyserDevice {
     {
         while(!isReady())
         {//wait until device is ready
+            
         }
         
         // Generate the Move cmd for moving to the tray(nr) closing coordinate. 
@@ -330,9 +341,31 @@ public class RoeAnalyserDevice {
     }
     
     
+     /**
+     * Return the number of trays.
+     * @return
+     */
+    public int getNumberOfTrays() {
+        // TODO: Fill method
+        // Generate cmd for requesting nr of trays in rack from arduino.         
+        return 3; // TODO: Return number of trays in rack. 
+    }
+    
+     /**
+     * Take a picture at e specefic frame number.
+     *
+     * @param framNumber
+     */
+    public void takePicture(int framNumber) {
+        // TODO: Fill method
+    }
+    
+    
+    
     private void updateStatus()
     {
         StateRequest stateReq = new StateRequest();
         i2cComm.addRecieveQ(stateReq);
     }
+ 
 }

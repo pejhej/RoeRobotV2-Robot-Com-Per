@@ -29,6 +29,8 @@ public class Parameters extends Status
     private byte[] xRange;
     private byte[] yRange;
     private byte[] zRange;
+    
+    private byte numberOfTrays;
 
     public Parameters()
     {
