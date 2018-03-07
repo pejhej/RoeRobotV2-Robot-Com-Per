@@ -11,6 +11,7 @@ import Commands.CloseTray;
 import Commands.Move;
 import Commands.OpenTray;
 import Commands.StateRequest;
+import Commands.Stop;
 import Commands.Suction;
 import I2CCommunication.I2CCommunication;
 import Status.Busy;
@@ -25,11 +26,15 @@ import Status.ReadyToRecieve;
 import Status.SafetySwitchLower;
 import Status.SafetySwitchUpper;
 import Status.Status;
+import Status.Stopped;
+import static com.pi4j.wiringpi.Gpio.delay;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Timer;
 import javafx.concurrent.Worker;
+import org.junit.rules.Stopwatch;
+
 
 
 
@@ -41,17 +46,20 @@ import javafx.concurrent.Worker;
  */
 public class RoeAnalyserDevice {
 
-    RoeAnalyserDevice()
+       public RoeAnalyserDevice(I2CCommunication i2c)
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        i2cComm = i2c;
+     
     }
 
-   
-    
+  
+       
+    //Enum for holding the states
     private enum State
     {
         
         Busy(new Busy()),
+        Stopped(new Stopped()),
         ReadyToRecieve(new ReadyToRecieve()),
         EMC(new EMC()),
         SAFETY_SWITCH_UPPER(new SafetySwitchUpper()),
@@ -63,9 +71,6 @@ public class RoeAnalyserDevice {
         PARAMETER(new Parameters()),
         FLAG_POS(new FlagPos());
         
-  
-     
-
         //Hashmap for lookup
         private static final HashMap<Status, State> lookup = new HashMap<Status, State>();
 
@@ -99,7 +104,9 @@ public class RoeAnalyserDevice {
         }
     }
     
-    
+    //Stopwatch
+    Stopwatch stopwatch;
+    private final static int waitTimeMillis = 50;
     
     //Default height for going down to row
     int defaultSuckHeight = 40;
@@ -116,12 +123,6 @@ public class RoeAnalyserDevice {
     //I2c communication 
     I2CCommunication i2cComm;
     
-    RoeAnalyserDevice(I2CCommunication i2c)
-    {
-        i2cComm = i2c;
-     
-    }
-
     
     
     /**
@@ -151,8 +152,11 @@ public class RoeAnalyserDevice {
      */
     public void openTray(int trayNumber) 
     {
+        updateStatus();
          while(!isReady())
         {//wait until device is ready
+            stopWatch(waitTimeMillis);
+            updateStatus();
         }
         
         // Generate the Move cmd for moving to the tray(nr) openging coordinate.
@@ -190,6 +194,7 @@ public class RoeAnalyserDevice {
         while(!isReady())
         {//wait until device is ready
             
+            
         }
         
         // Generate the Move cmd for moving to the tray(nr) closing coordinate. 
@@ -212,8 +217,6 @@ public class RoeAnalyserDevice {
         
         //Send the close tray commando
         i2cComm.addSendQ(cmdCloseTray);
-        
-  
     }
     
     
@@ -261,14 +264,41 @@ public class RoeAnalyserDevice {
         i2cComm.addSendQ(calicmd);
         // Generate a Calibration command. 
         // Send cmd. 
-        while(isReady())
+        
+        long startTime = System.nanoTime();
+         long waitTime = 100000;
+         
+         boolean stopOnce = false;
+         //TODO: TESTING EREMEMBER
+        while(!isReady())
         {
-            //timer and poll state
+            //TODO: remove this delay shit
+             delay(500);
+             updateStatus();
+             
+             //TODO: REMOVE THIS AFTER TESTING
+           /* if(waitTime < (System.nanoTime() - startTime) && !stopOnce)
+            {    
+                System.out.println("****Stop triggered*****");
+           //  this.stopRobot();
+             stopOnce = true;
+             }
+             */
+             
         }
         
         //Send calib param command to get calibration parameters
         CalibParam cmdCalibPar = new CalibParam();
         i2cComm.addRecieveQ(cmdCalibPar);
+    }
+    
+    /**
+     * Sends a stop Command to the robot
+     */
+    public void stopRobot()
+    {
+        Stop stop = new Stop();
+        i2cComm.addSendQ(stop);
     }
     
     
@@ -286,7 +316,7 @@ public class RoeAnalyserDevice {
      */
       private void pickUpRoe()
     {
-        StateRequest statusReq = new StateRequest();
+        
         //Create and send the move cmd
         Move moveDown = new Move();
         moveDown.setIntZValue(defaultSuckHeight);
@@ -302,10 +332,10 @@ public class RoeAnalyserDevice {
         //Suction
         Suction suck = new Suction();
         
-         while(isReady())
+         while(!isReady())
          {    //Update state or just wait until state gets ready
              //Delay
-             i2cComm.addRecieveQ(statusReq);
+             updateStatus();
          }   
          
          //Send suction command
@@ -313,11 +343,9 @@ public class RoeAnalyserDevice {
          
          
          //Wait for the Robot to finish before sending more requests to it
-         while(isReady())
+         while(!isReady())
          {    
-             //Update state or just wait until state gets ready
-             //Delay
-             i2cComm.addRecieveQ(statusReq);
+             updateStatus();
          }
          
          //Move the robot up
@@ -332,12 +360,19 @@ public class RoeAnalyserDevice {
     private boolean isReady()
     {
         //Return bool
-        boolean isReady = false;
+        boolean ready = false;
         //Check status
+        if(currentStatus != null)
+        {
         if(currentStatus.getString().equalsIgnoreCase(State.ReadyToRecieve.getStateStatus().getString().toLowerCase()))
-            isReady = true;
+            ready = true;
+        }
         
-        return isReady;
+        //TODO: ONLY FOR TESTING
+        if(i2cComm.returnTriggered())
+            ready = true;
+        
+        return ready;
     }
     
     
@@ -361,11 +396,33 @@ public class RoeAnalyserDevice {
     }
     
     
-    
-    private void updateStatus()
+    /**
+     * Send a request for state update
+     */
+    public void updateStatus()
     {
         StateRequest stateReq = new StateRequest();
         i2cComm.addRecieveQ(stateReq);
     }
  
+    
+    
+    private void stopWatch(long waitMillis)
+    {
+        long initiatedMillis = System.nanoTime();
+        while(initiatedMillis < waitMillis+initiatedMillis);
+            
+    }
+    
+    
+    //TODO: Only for testing
+    public void toggleStatusReady()
+    {
+        currentStatus = State.ReadyToRecieve.getStateStatus();
+    }
+    
+    public void toggleBusyReady()
+    {
+        currentStatus = State.Busy.getStateStatus();
+    }
 }

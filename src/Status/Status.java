@@ -5,6 +5,9 @@
  */
 package Status;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * Status message sent from arduinos. Each object holds unique address.
  * 
@@ -78,4 +81,26 @@ public class Status
              this.triggered = false;
      }
      
+     /**
+      * Return a new Status instance of the object calling it
+      * @return 
+      */
+     public Status returnNew()
+     {
+         Status returnstat = null;
+        try
+        {
+            returnstat = this.getClass().newInstance();
+        } catch (InstantiationException ex)
+        {
+            Logger.getLogger(Status.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex)
+        {
+            Logger.getLogger(Status.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return returnstat;
+     }
+     
+   
 }

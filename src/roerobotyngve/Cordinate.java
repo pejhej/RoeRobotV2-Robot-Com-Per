@@ -10,7 +10,7 @@ package roerobotyngve;
  *
  * @author Yngve
  */
-class Cordinate {
+public class Cordinate {
 
     private int xCoord;
     private int yCoord;

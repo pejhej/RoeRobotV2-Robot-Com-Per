@@ -9,14 +9,13 @@ package Commands;
  *
  * @author PerEspen
  */
-public class OpenTray extends Commando
+public class Stop extends Commando
 {
-    private static final byte COMMAND_ADDRESS = 0x22;
-
-     
-    public OpenTray( )
+    //The commando address
+      private static final byte COMMAND_ADDRESS = 0x07;
+      
+    public Stop()
     {
         super(COMMAND_ADDRESS);
     }
-    
 }

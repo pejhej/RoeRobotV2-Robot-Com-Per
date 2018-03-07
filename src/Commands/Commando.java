@@ -47,7 +47,7 @@ public class Commando
     {
         this.commandAddress = commandAddress;
         //Creates value(byte[]) with default nr of bytes inside
-        this.value = new byte[nrOfBytes];
+        this.value = null;
         
         
     }
@@ -204,4 +204,21 @@ public class Commando
             }
    
     
+    
+    /**
+     * Return the payload of this command, with first byte as number of bytes in payload
+     * @return Return the payload including its size
+     */
+    public byte[] makeCompleteByte()
+            {
+                //Create new byte array for added size to the value
+                byte[] returnByte = new byte[this.value.length + 2];
+                
+                //Set the size in the spot in the byte array
+                returnByte[0] = this.getCmdAddr();
+                returnByte[1] = (byte) this.getValue().length;
+                System.arraycopy(this.getValue(), 0, returnByte, 2, this.value.length);
+                
+                return returnByte;
+            }
 }

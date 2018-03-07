@@ -12,7 +12,7 @@ package Commands;
 public class CloseTray extends Commando
 {
     
-    private static final byte COMMAND_ADDRESS = 0x22;
+    private static final byte COMMAND_ADDRESS = 0x23;
 
      
     public CloseTray( )

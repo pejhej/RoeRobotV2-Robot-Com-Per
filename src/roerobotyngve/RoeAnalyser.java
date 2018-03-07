@@ -32,7 +32,7 @@ public class RoeAnalyser {
     private int currentTray;
     
     public void RoeAnalyser() {
-        this.roeAnalyser = new RoeAnalyserDevice();
+       // this.roeAnalyser = new RoeAnalyserDevice();
         trayOpen = false;
         currentTray = 1;
     }

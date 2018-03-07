@@ -296,11 +296,13 @@ public class Parameters extends Status
             System.arraycopy(inputVal, defaultByteRange, copy, 0, defaultByteRange);
             this.setYByteArr(copy);
             lenghtCnt = lenghtCnt + defaultByteRange;
-
+            
+            //Means there are values After the XY-Bytes
+            //Most certainly 
             if ((lenghtCnt + defaultByteRange) <= inputVal.length)
             {
                 /*Copying and setting the Y byte[]*/
-                copy = new byte[inputVal.length / 2];
+                copy = new byte[defaultByteRange];
                 System.arraycopy(inputVal, (defaultByteRange * 2), copy, 0, defaultByteRange);
                 this.setZByteArr(copy);
                 lenghtCnt = lenghtCnt + defaultByteRange;
@@ -317,5 +319,20 @@ public class Parameters extends Status
             lenghtCnt = lenghtCnt + defaultByteRange;
         }
     }
+    
+    
+    
+    @Override
+     public void trigger(byte[] val)
+     {
+         System.out.print("X value: ");
+         System.out.println(this.getShortXValue());
+         
+          System.out.print("Y value: ");
+         System.out.println(this.getShortYValue());
+         
+          System.out.print("Z value: ");
+         System.out.println(this.getShortZValue());
+     }
 
 }

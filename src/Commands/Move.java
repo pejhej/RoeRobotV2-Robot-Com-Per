@@ -159,4 +159,42 @@ public class Move extends Commando
     }
     
     
+        /**
+     * Return the XY payload of this command, with first byte as address for cmd and second as total number of bytes
+     * @return Return the payload including its size
+     */
+    public byte[] makeCompleteXYByte()
+            {
+                //Create new byte array for added size to the value
+                byte[] returnByte = new byte[this.getxValue().length + this.getyValue().length + 2];
+                
+                //Make new byte to send to store the byte[] length in the first byte
+            returnByte[0] = this.getCmdAddr();
+            returnByte[1] = (byte) ((byte) this.getxValue().length + this.getyValue().length);
+            System.arraycopy(this.getxValue(), 0, returnByte, 2, this.getxValue().length);
+            System.arraycopy(this.getyValue(), 0, returnByte, (2+this.getxValue().length), this.getyValue().length);
+            
+                
+                return returnByte;
+            }
+    
+    
+    
+         /**
+     * Return the XY payload of this command, with first byte as address for cmd and second as total number of bytes
+     * @return Return the payload including its size
+     */
+    public byte[] makeCompleteZByte()
+            {
+                //Create new byte array for added size to the value
+                byte[] returnByte = new byte[this.getzValue().length + 2];
+                
+                //Make new byte to send to store the byte[] length in the first byte
+            returnByte[0] = this.getCmdAddr();
+            returnByte[1] = (byte) this.getzValue().length;
+            System.arraycopy(this.getzValue(), 0, returnByte, 2, this.getzValue().length);
+            
+                return returnByte;
+            }
+    
 }

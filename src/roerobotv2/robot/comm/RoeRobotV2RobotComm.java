@@ -21,6 +21,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import roerobotyngve.RoeAnalyserDevice;
+import roerobotyngve.Cordinate;
 
 /**
  *
@@ -56,18 +58,20 @@ public class RoeRobotV2RobotComm
    private static final int MAX_CLIENT_THREADS = 20;
      private ScheduledExecutorService threadPool;
 
-     
+     I2CCommunication i2comm;
      
      
      public RoeRobotV2RobotComm()
      {
         // threadPool = Executors.newScheduledThreadPool(MAX_CLIENT_THREADS);
+         i2comm = new I2CCommunication();
+         i2comm.start();
      }
      
      public void initRun()
      {
-          I2CCommunication i2comm = new I2CCommunication();
-          i2comm.start();
+          
+          
           //threadPool.execute(i2comm); 
           
         Move move = new Move();
@@ -174,6 +178,10 @@ public class RoeRobotV2RobotComm
        System.out.println(close.getIntValue());
        System.out.println(close.getValue());
           
+       byte[] statebyte = new byte[2];
+       statebyte[0] = 0x07;
+       i2comm.makeState(statebyte);
+       
      //     System.out.println("Move");
            
        // i2comm.addSendQ(move);
@@ -253,6 +261,35 @@ public class RoeRobotV2RobotComm
 */
      }
      
+     
+     
+     public void roeAnalyserDevTest()
+     {
+         RoeAnalyserDevice roeADev = new RoeAnalyserDevice(i2comm);
+         //
+         Cordinate cord = new Cordinate(1,2,3);
+        // roeADev.move(cord);
+         delay(1000);
+      
+         //roeADev.updateStatus();
+        roeADev.calibrate();
+        
+       /* if(waitTime > (System.nanoTime() - startTime))
+        { 
+             
+        }
+         */
+      /* delay(100);
+        System.out.println("SEND STOP");
+        roeADev.stopRobot();
+         */
+         
+         
+     }
+     
+     
+     
+     
     /**
      * @param args the command line arguments
      */
@@ -260,10 +297,17 @@ public class RoeRobotV2RobotComm
     {
        
         RoeRobotV2RobotComm roeb = new RoeRobotV2RobotComm();
-        roeb.initRun();
+        //roeb.initRun();
+        roeb.roeAnalyserDevTest();
         
        
     }
+    
+    
+    
+    
+    
+    
     
     private void sleeping(long sleepTime)
     {
