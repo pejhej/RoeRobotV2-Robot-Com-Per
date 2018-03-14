@@ -7,7 +7,7 @@ package roerobotv2.robot.comm;
 
 import Commands.CalibParam;
 import Commands.Calibrate;
-import Commands.CloseTray;
+import Commands.LockGripper;
 import Commands.Move;
 import Commands.StateRequest;
 import I2CCommunication.I2CCommunication;
@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import roerobotyngve.RoeAnalyserDevice;
-import roerobotyngve.Cordinate;
+import roerobotyngve.Coordinate;
 
 /**
  *
@@ -171,7 +171,7 @@ public class RoeRobotV2RobotComm
         
         Parameters param = new Parameters();
         
-       CloseTray close = new CloseTray();
+       LockGripper close = new LockGripper();
        close.setIntValue(10);
        
        System.out.println("close values");
@@ -267,8 +267,8 @@ public class RoeRobotV2RobotComm
      {
          RoeAnalyserDevice roeADev = new RoeAnalyserDevice(i2comm);
          //
-         Cordinate cord = new Cordinate(1,2,3);
-        // roeADev.move(cord);
+         Coordinate cord = new Coordinate(1,2,3);
+         roeADev.move(cord);
          delay(1000);
       
          //roeADev.updateStatus();

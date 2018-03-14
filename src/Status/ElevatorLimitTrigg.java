@@ -21,4 +21,11 @@ public class ElevatorLimitTrigg extends Status
         super(COMMAND_ADDRESS, STATUS);
     }
     
+    
+    @Override
+     public boolean critical()
+     {
+         return true;
+     }
+    
 }

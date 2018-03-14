@@ -21,6 +21,6 @@ public class Stopped extends Status
         super(COMMAND_ADDRESS, STATUS);
     }
     
-
+    
     
 }

@@ -5,6 +5,8 @@
  */
 package roerobotyngve;
 
+import com.sun.xml.internal.bind.v2.runtime.Coordinator;
+
 /**
  * Class represents a tray. The tray has a width, hight and a depth. The tray
  * will also know where it is plased in a coordinate system by knowing its upper
@@ -13,19 +15,37 @@ package roerobotyngve;
  * @author Yngve
  */
 public class Tray{
-
-    private final int width, depth; // defined in mm 
-    private final int distUpperLowerPos; // Distanse form the upper position to the lowest point in the tray
-    private final int upperPos; // defined in mm parallel to the Z-axis 
-    private final int lowerPos; // defined in mm parallel to the Z-axis
+    //Number for this tray
+    private final int nr;
+    private final int handleOffset = 0;
+    private final int width = 10; // defined in mm 
+    private final int depth = 10; // defined in mm 
+    private final int distUpperLowerPos = 20; // Distanse form the upper position to the lowest point in the tray
+    private final int upperPos = 30; // defined in mm parallel to the Z-axis 
+    private final int lowerPos = 40; // defined in mm parallel to the Z-axis
+    
     private int nrOfRemovedRoe;
+    private int flagPosZ;
+    
+    //Coordinate for diff positions related to the tray
+   private Coordinate getHandleCoord;
+    private Coordinate defaultPosCoord;
+    private Coordinate openTrayCoord;
+    
+    private Coordinate pickupRoeZCoord;
+    
+    private Coordinate cameraPos1;
+    private Coordinate cameraPos2;
+    private Coordinate cameraPos3;
+    private Coordinate cameraPos4;
+    private Coordinate cameraPos5;
+    private Coordinate cameraPos6;
+    
 
-    public Tray(int width, int depth, int distUpperLowerPos, int upperPos) {
-        this.width = width;
-        this.depth = depth;
-        this.distUpperLowerPos = distUpperLowerPos;
-        this.upperPos = upperPos;
-        this.lowerPos = this.upperPos - this.distUpperLowerPos;
+    public Tray(int nr, int flagposZ) 
+    {
+        this.flagPosZ = flagposZ;
+        this.nr = nr;
     }
 
     /**
@@ -94,4 +114,70 @@ public class Tray{
         return depth;
     }
 
+    /**
+     * Return this trays number
+     * @return The number of this tray
+     */
+    public int getTrayNr()
+    {
+        return this.nr;
+    }
+    
+    /**
+     * Coordinates for the handle to this tray
+     * @return Return coordinate for the handle of this tray
+     */
+    public Coordinate getHandleCoordinate()
+    {
+        return this.getHandleCoordinate();
+    }
+    
+    
+      /**
+     * Return the Z Coordinates for the handle to this tray
+     * @return Return the Z coordinate for the handle of this tray
+     */
+    public Coordinate getZHandleCoord()
+    {
+        Coordinate zCord = new Coordinate(0,0, this.getHandleCoordinate().getzCoord());
+        
+        return zCord;
+    }
+    /**
+     * Return the coords for pulling the tray to open position
+     * @return Return the coords for opening the tray
+     */
+    public Coordinate getOpenCoord()
+    {
+       return this.openTrayCoord;
+    }
+    
+        /**
+     * Return the coords for opening the tray
+     * @return Return the coords for opening the tray
+     */
+    public Coordinate getDefaultCoord()
+    {
+       return this.defaultPosCoord;
+    }
+    
+    /**
+     * Return the z coord where roe should be pickuped up
+     * @return Return the z coord where roe should be pickuped up
+     */
+    public Coordinate getRoePickupZCoord()
+    {
+        return this.pickupRoeZCoord;
+    }
+    
+    /**
+     * Returns the coord for grabbing the handle to close the tray
+     * @return  Returns the coord for grabbing the handle to close the tray
+     */
+    public Coordinate getCloseTrayCoord()
+    {
+     Coordinate returnCord = new Coordinate(this.getOpenCoord().getxCoord()+2, this.getOpenCoord().getyCoord(), this.getOpenCoord().getzCoord());
+     return returnCord;
+    }
+    
 }

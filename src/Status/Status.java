@@ -102,5 +102,14 @@ public class Status
         return returnstat;
      }
      
+     //TODO: Override in subclasses
+     /**
+      * Returns true if this status is considered as critical for function
+      * @return 
+      */
+     public boolean critical()
+     {
+         return false;
+     }
    
 }

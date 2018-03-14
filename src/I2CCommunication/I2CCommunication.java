@@ -8,11 +8,11 @@ package I2CCommunication;
 import Commands.Acceleration;
 import Commands.CalibParam;
 import Commands.Calibrate;
-import Commands.CloseTray;
+import Commands.LockGripper;
 import Commands.Commando;
 import Commands.Light;
 import Commands.Move;
-import Commands.OpenTray;
+import Commands.ReleaseGripper;
 import Commands.StateRequest;
 import Commands.Suction;
 import Commands.Velocity;
@@ -716,17 +716,17 @@ public class I2CCommunication extends Thread
             Suction cmdSuction = (Suction) cmd;
             this.writeBytesToAddr(linearRobot, cmd.getCmdAddr(), cmd.getValue());
             this.writeBytesToAddr(elevatorRobot, cmd.getCmdAddr(), cmd.getValue());
-        } else if (cmd instanceof OpenTray)
+        } else if (cmd instanceof ReleaseGripper)
         {
             //Control the gripper
-            OpenTray cmdOpenTray = (OpenTray) cmd;
+            ReleaseGripper cmdOpenTray = (ReleaseGripper) cmd;
             this.writeBytesToAddr(linearRobot, cmdOpenTray.getCmdAddr(), cmdOpenTray.getValue());
             this.writeBytesToAddr(elevatorRobot, cmdOpenTray.getCmdAddr(), cmdOpenTray.getValue());
         }
-         else if (cmd instanceof CloseTray)
+         else if (cmd instanceof LockGripper)
         {
             //Control the gripper
-            CloseTray cmdCloseTray = (CloseTray) cmd;
+            LockGripper cmdCloseTray = (LockGripper) cmd;
             this.writeBytesToAddr(linearRobot, cmdCloseTray.getCmdAddr(), cmdCloseTray.getValue());
             this.writeBytesToAddr(elevatorRobot, cmdCloseTray.getCmdAddr(), cmdCloseTray.getValue());
         }

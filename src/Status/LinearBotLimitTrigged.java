@@ -22,4 +22,12 @@ public class LinearBotLimitTrigged extends Status
         super(COMMAND_ADDRESS , STATUS);
     }
     
+     @Override
+     public boolean critical()
+     {
+         return true;
+     }
+    
+    
+    
 }

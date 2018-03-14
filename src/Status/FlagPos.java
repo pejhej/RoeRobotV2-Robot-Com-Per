@@ -22,5 +22,7 @@ public class FlagPos extends Status
     {
         super(COMMAND_ADDRESS, STATUS);
     }
+ 
+    
     
 }

@@ -7,9 +7,10 @@ package roerobotyngve;
 
 import Commands.CalibParam;
 import Commands.Calibrate;
-import Commands.CloseTray;
+import Commands.Light;
+import Commands.LockGripper;
 import Commands.Move;
-import Commands.OpenTray;
+import Commands.ReleaseGripper;
 import Commands.StateRequest;
 import Commands.Stop;
 import Commands.Suction;
@@ -33,31 +34,29 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Timer;
 import javafx.concurrent.Worker;
+import javax.swing.text.html.HTMLDocument;
 import org.junit.rules.Stopwatch;
 
-
-
-
 /**
- * This class represents a robot and all its possible commands and actions. 
- * It can open trays, close trays, move robot to specified x,y,z, 
- * pickup and remove roe from given coordinate.
+ * This class represents a robot and all its possible commands and actions. It
+ * can open trays, close trays, move robot to specified x,y,z, pickup and remove
+ * roe from given coordinate.
+ *
  * @author Yngve & Per Espen
  */
-public class RoeAnalyserDevice {
+public class RoeAnalyserDevice
+{
 
-       public RoeAnalyserDevice(I2CCommunication i2c)
+    public RoeAnalyserDevice(I2CCommunication i2c)
     {
         i2cComm = i2c;
-     
+
     }
 
-  
-       
     //Enum for holding the states
     private enum State
     {
-        
+
         Busy(new Busy()),
         Stopped(new Stopped()),
         ReadyToRecieve(new ReadyToRecieve()),
@@ -70,7 +69,7 @@ public class RoeAnalyserDevice {
         ENCODER_OUT_OF_RANGE(new EncoderOutOfRange()),
         PARAMETER(new Parameters()),
         FLAG_POS(new FlagPos());
-        
+
         //Hashmap for lookup
         private static final HashMap<Status, State> lookup = new HashMap<Status, State>();
 
@@ -103,62 +102,55 @@ public class RoeAnalyserDevice {
             return lookup.get(address);
         }
     }
-    
+
     //Stopwatch
     Stopwatch stopwatch;
     private final static int waitTimeMillis = 50;
-    
+
     //Default height for going down to row
     int defaultSuckHeight = 40;
     int defaultHeight = 50;
-    
+
     //The timer for this object
-    Timer timer = new Timer();
-    
-    
-      //Holds the current status sent by the roerobot
+    //Timer timer = new Timer();
+    //Timer variabales
+    private long timerTime = 0;
+    private long waitTime = 100000;
+
+    //Holds the current status sent by the roerobot
     Status currentStatus;
-    
-    
+
     //I2c communication 
     I2CCommunication i2cComm;
-    
-    
-    
-    /**
-     * Move method used for moving the end-effector to a specific X,Y,Z coordinat
-     *
-     * @param coordinat in a global coordinat system.
-     */
-    public void move(Cordinate cordinat) 
-    {
-        //Do what necessary form moving the end-effector to a spesific coordinat. 
-        //Create the command and set the appropriate values
-        Move moveCmd = new Move();
-        moveCmd.setIntXValue(cordinat.getxCoord());
-        moveCmd.setIntYValue(cordinat.getxCoord());
-        moveCmd.setIntZValue(cordinat.getxCoord());
-        //Add to the communication sending queue
-        i2cComm.addSendQ(moveCmd);
-        
-    }
+
+    //Tray
+    Tray currentTray;
+    TrayRegister trayReg;
+
+    //Flag bool to know if a faulty status has been recieved
+    private boolean robotFault = false;
 
     
+    
+    
+    
+
     /**
      * Open tray will open a tray with a specific number.
      *
      * @param trayNumber is the number of the tray wanted to open.
      * @return False if the tray number do not exist.
      */
-    public void openTray(int trayNumber) 
+    public boolean openTray(int trayNumber)
     {
+     /*       
         updateStatus();
-         while(!isReady())
+        while (!isReady() && !robotFault)
         {//wait until device is ready
             stopWatch(waitTimeMillis);
             updateStatus();
         }
-        
+
         // Generate the Move cmd for moving to the tray(nr) openging coordinate.
         // Send cmd. 
         // Check enum for status. 
@@ -170,33 +162,174 @@ public class RoeAnalyserDevice {
         // Check enum for status. 
         // Generate a Lock cmd used for trigg the Lock machanism to open.
         // Send cmd. 
+        ReleaseGripper cmdReleaseGrip = new ReleaseGripper();
+        LockGripper cmdLockGripper = new LockGripper();
+
         
-        OpenTray cmdOpenTray = new OpenTray();
+       
+
+        //Move the robot to the handle of the tray
+        Coordinate handleCord = workTray.getHandleCoordinate();
+
+        //Move first in Z direction
+        this.move(workTray.getZHandleCoord());
+        //Wait till robot is finished
+        while (!isReady())
+        {//wait until device is ready
+            stopWatch(waitTimeMillis);
+            updateStatus();
+        }
+
+        //Then move in x,y direction
+        this.move(workTray.getHandleCoordinate());
+        //Wait till robot is finished
+        while (!isReady())
+        {//wait until device is ready
+            stopWatch(waitTimeMillis);
+            updateStatus();
+        }
+
+        //Lock the gripper
+        i2cComm.addSendQ(cmdLockGripper);
+        //Wait till robot is finished
+        while (!isReady())
+        {//wait until device is ready
+            stopWatch(waitTimeMillis);
+            updateStatus();
+        }
+
+        //Open the tray
+        move(workTray.getOpenCoord());
+        //Wait till robot is finished
+        while (!isReady())
+        {//wait until device is ready
+            stopWatch(waitTimeMillis);
+            updateStatus();
+        }
+
+        //Release the gripper
+        i2cComm.addSendQ(cmdReleaseGrip);
+        //Wait till robot is finished
+        while (!isReady())
+        {//wait until device is ready
+            stopWatch(waitTimeMillis);
+            updateStatus();
+        }
+
+        //Move to default after opening tray
+        move(workTray.getDefaultCoord());
+        //Wait till robot is finished
+        while (!isReady())
+        {//wait until device is ready
+            stopWatch(waitTimeMillis);
+            updateStatus();
+        }
+        */
         
-        if(Integer.bitCount(trayNumber) >= Short.SIZE)
-             cmdOpenTray.setShortValue((short) trayNumber);
-        else
-        cmdOpenTray.setIntValue(trayNumber);
+        //Return bool how the task went
+        boolean succesful = true;
+
+        //Switch case variables
+        int task = 0;
+        // the tasks to be completed
+        final int moveRobotToHandle = 0, lockGripper = 1, moveOpenTray = 2, releaseGripper = 3, moveToDefault = 4, done = 5;
         
-        //Send the close tray commando
-        i2cComm.addSendQ(cmdOpenTray);
+        //Get the tray to work on
+         Tray workTray = trayReg.getTray(trayNumber);
+         //Check if the tray was retrieved succesfully, else exit the method
+         if(workTray.equals(null))
+         {
+             task = done;
+             succesful = false;
+         }
+        
+        //Switch case to do the tasks;
+        switch (task)
+        {
+            //Move robot to the position of the handle
+            case moveRobotToHandle:
+                //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
+                if (robotIsReady(waitTime))
+                {
+                    //Move command
+                    Move cmdMove = new Move();
+                    //Get the coordinates from the handle
+                    Coordinate handleCord = workTray.getHandleCoordinate();
+                    this.move(workTray.getHandleCoordinate());
+                } //Something is faulty, end the task
+                else
+                {
+                    succesful = false; //Set succesful to false
+                    task = done;        //End the task
+                }
+
+            case lockGripper:
+              //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
+                if (robotIsReady(waitTime))
+                {
+                    //Create the lock grip command
+                    LockGripper cmdLockGripper = new LockGripper();
+                    //Lock the gripper
+                    this.i2cComm.addSendQ(cmdLockGripper);
+                } //Something is faulty, end the task
+                else
+                {
+                    succesful = false; //Set succesful to false
+                    task = done;        //End the task
+                }
+                
+                  case moveOpenTray:
+              //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
+                if (robotIsReady(waitTime))
+                {
+                    //Send move command to open the tray;
+                    move(workTray.getOpenCoord());
+                } //Something is faulty, end the task
+                else
+                {
+                    succesful = false; //Set succesful to false
+                    task = done;        //End the task
+                }
+                
+            case releaseGripper:
+                //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
+                if (robotIsReady(waitTime))
+                {
+                    //Create the release grip command
+                    ReleaseGripper cmdReleaseGrip = new ReleaseGripper();
+                    //Send command to release the gripper
+                    this.i2cComm.addSendQ(cmdReleaseGrip);
+                } //Something is faulty, end the task
+                else
+                {
+                    succesful = false; //Set succesful to false
+                    task = done;        //End the task
+                }
+                
+            case moveToDefault:
+                  //Move to default after opening tray
+                   move(workTray.getDefaultCoord());
+                   
+            case done:
+                break;
+        }
+        
+        //Save this opening tray to the currentTray
+        currentTray = workTray;
+
+        return succesful;
+
     }
 
-    
     /**
-     * Close Tray will close a tray with a spesific number.
+     * Close Tray will close a tray with a specific number.
      *
      * @param trayNumber is the nuber of the tray wanted to close
      * @return False if the tray number do not exist.
      */
-    public void closeTray(int trayNumber) 
+    public boolean closeTray(int trayNumber)
     {
-        while(!isReady())
-        {//wait until device is ready
-            
-            
-        }
-        
+        //TODO: Implement this function
         // Generate the Move cmd for moving to the tray(nr) closing coordinate. 
         // Send cmd. 
         // Check enum for status. 
@@ -208,23 +341,108 @@ public class RoeAnalyserDevice {
         // heck enum for status. 
         // Generate a Lock cmd used for trigg the Lock machanism to open.
         // Send cmd. 
-        CloseTray cmdCloseTray = new CloseTray();
+
+          //Return bool how the task went
+        boolean sucessful = true;
+
+        //Switch case variables
+        int task = 0;
+        // the tasks to be completed
+        final int moveRobotToCloseHandle = 0, lockGripper = 1, moveCloseTray = 2, releaseGripper = 3, moveToDefault = 4, done = 5;
         
-        if(Integer.bitCount(trayNumber) >= Short.SIZE)
-             cmdCloseTray.setShortValue((short) trayNumber);
-        else
-        cmdCloseTray.setIntValue(trayNumber);
+        //Get the tray to work on, or use the current tray
+         Tray workTray = trayReg.getTray(trayNumber);
+         //Check if the tray was retrieved succesfully, else exit the method
+         if(workTray.equals(null))
+         {
+             task = done;
+             sucessful = false;
+         }
         
-        //Send the close tray commando
-        i2cComm.addSendQ(cmdCloseTray);
+        //Switch case to do the tasks;
+        switch (task)
+        {
+            //Move robot to the position of the handle
+            case moveRobotToCloseHandle:
+                //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
+                if (robotIsReady(waitTime))
+                {
+                    //Move command
+                    Move cmdMove = new Move();
+                    //Get the coordinates from the handle
+                    Coordinate openHandleCord = workTray.getCloseTrayCoord();
+                    this.move(openHandleCord);
+                } //Something is faulty, end the task
+                else
+                {
+                    sucessful = false; //Set succesful to false
+                    task = done;        //End the task
+                }
+
+            case lockGripper:
+              //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
+                if (robotIsReady(waitTime))
+                {
+                    //Create the lock grip command
+                    LockGripper cmdLockGripper = new LockGripper();
+                    //Lock the gripper
+                    this.i2cComm.addSendQ(cmdLockGripper);
+                } //Something is faulty, end the task
+                else
+                {
+                    sucessful = false; //Set succesful to false
+                    task = done;        //End the task
+                }
+                
+                  case moveCloseTray:
+              //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
+                if (robotIsReady(waitTime))
+                {
+                    //Send move command to open the tray;
+                    move(workTray.getHandleCoordinate());
+                } //Something is faulty, end the task
+                else
+                {
+                    sucessful = false; //Set succesful to false
+                    task = done;        //End the task
+                }
+                
+            case releaseGripper:
+                //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
+                if (robotIsReady(waitTime))
+                {
+                    //Create the release grip command
+                    ReleaseGripper cmdReleaseGrip = new ReleaseGripper();
+                    //Send command to release the gripper
+                    this.i2cComm.addSendQ(cmdReleaseGrip);
+                } //Something is faulty, end the task
+                else
+                {
+                    sucessful = false; //Set succesful to false
+                    task = done;        //End the task
+                }
+                
+            case moveToDefault:
+                  //Move to default after opening tray
+                   move(workTray.getDefaultCoord());
+                   
+            case done:
+                break;
+        }
+        
+        //set current tray to null
+        currentTray = null;
+        
+        //Return the completion bool
+        return sucessful;
     }
-    
-    
+
     /**
-     * Removes roe from all the coordinates given in the Arraylist. 
-     * @param coordinates Arraylist of coordinates to be removed from. 
+     * Removes roe from all the coordinates given in the Arraylist.
+     *
+     * @param coordinates Arraylist of coordinates to be removed from.
      */
-    private void removeRoe(ArrayList<Cordinate> cordinates)
+    private boolean removeRoe(ArrayList<Coordinate> cordinates)
     {
         // 1. Generate a move cmd to the first coordinat.
         // 2. send cmd. 
@@ -232,66 +450,71 @@ public class RoeAnalyserDevice {
         // 4. Generate pickUpRoe cmd for removing the roe. 
         // 5. Send cmd.
         // 6. redo form point 1. to the arrayList is empty. 
+
+        //Return bool if the task was completed or not
+        boolean succesful = true;
+
         Iterator itr = cordinates.iterator();
-        
-        while(itr.hasNext())
+
+        while (itr.hasNext() && succesful)
         {
-            //Move command
-            Move cmdMove = new Move();
             //Get the next coordinate
-            Cordinate cord = (Cordinate) itr.next();
-            
-              while(!isReady())
-            {//wait until device is ready
+            Coordinate cord = (Coordinate) itr.next();
+
+            //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
+            if (robotIsReady(waitTime) && succesful)
+            {
+                //Move command
+                Move cmdMove = new Move();
+                //Move the robot to the dead roe position
+                this.move(cord);
+            } //Something is faulty, end the task
+            else
+            {
+                succesful = false;
             }
-              
-            this.move(cord);
-            //Check if the current state is what the program wants it to be
-            while(!isReady())
-                //Update state or just wait until state gets.
-            
-           pickUpRoe();
+
+            //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
+            if (robotIsReady(waitTime) && succesful)
+            {
+                //Pick up the dead roe
+                pickUpRoe(currentTray);
+            } //Something is faulty, end the task
+            else
+            {
+                succesful = false;
+            }
         }
+
+        return succesful;
     }
 
-    
     /**
      * Calibrate will send a calibration command to the roerobot
      */
-    public void calibrate() 
+    public boolean calibrate()
     {
-        Calibrate calicmd = new Calibrate();
-        i2cComm.addSendQ(calicmd);
+        boolean succesful = true;
         // Generate a Calibration command. 
         // Send cmd. 
-        
-        long startTime = System.nanoTime();
-         long waitTime = 100000;
-         
-         boolean stopOnce = false;
-         //TODO: TESTING EREMEMBER
-        while(!isReady())
+        Calibrate calicmd = new Calibrate();
+        i2cComm.addSendQ(calicmd);
+
+        //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
+        if (robotIsReady(waitTime))
         {
-            //TODO: remove this delay shit
-             delay(500);
-             updateStatus();
-             
-             //TODO: REMOVE THIS AFTER TESTING
-           /* if(waitTime < (System.nanoTime() - startTime) && !stopOnce)
-            {    
-                System.out.println("****Stop triggered*****");
-           //  this.stopRobot();
-             stopOnce = true;
-             }
-             */
-             
+            //Send calib param command to get calibration parameters
+            CalibParam cmdCalibPar = new CalibParam();
+            i2cComm.addRecieveQ(cmdCalibPar);
+        } //Something is faulty, end the task
+        else
+        {
+            succesful = false;
         }
-        
-        //Send calib param command to get calibration parameters
-        CalibParam cmdCalibPar = new CalibParam();
-        i2cComm.addRecieveQ(cmdCalibPar);
+
+        return succesful;
     }
-    
+
     /**
      * Sends a stop Command to the robot
      */
@@ -300,102 +523,165 @@ public class RoeAnalyserDevice {
         Stop stop = new Stop();
         i2cComm.addSendQ(stop);
     }
-    
-    
+
     /**
-     * Toggle light
+     * Send all the required commands for picking up roe Go down to Z height,
+     * and send suction
      */
-    public void toggleLight() 
+    private boolean pickUpRoe(Tray thisTray)
     {
-        //Toggle light
+        //Return bool for result of task
+        boolean succesful = true;
+
+       
+        //Switch case variables
+        int task = 0;
+        // the tasks to be completed
+        final int moveDown = 0, suck = 1, moveUp = 2, done = 3;
+
+        //Switch case to do the tasks;
+        switch (task)
+        {
+            case moveDown:
+                //Send command if robot becomes ready
+                if (robotIsReady(waitTime))
+                {
+                    this.move(thisTray.getRoePickupZCoord());
+                } //Something is faulty, end the task
+                else
+                {
+                    succesful = false;
+                    task = done;
+                }
+            //Move down to the roe pickup height
+            //Do the suction task - Check robot is ready, send suction command
+            case suck:
+                //Send command if robot becomes ready
+                if (robotIsReady(waitTime))
+                {
+                    Suction cmdSuck = new Suction();
+                    //Send suction command
+                    i2cComm.addSendQ(cmdSuck);
+                } //Something is faulty, end task
+                else
+                {
+                    succesful = false;
+                    task = done;
+                }
+            
+            //Move the robot up, from the tray
+            case moveUp:
+                //Send command if robot becomes ready
+                if (robotIsReady(waitTime))
+                {
+                    this.move(thisTray.getDefaultCoord());
+                } //Something is faulty, end task
+                else
+                {
+                    succesful = false;
+                    task = done;
+                }
+                
+                //The task is done, break
+            case done:
+                break;
+        }
+        
+        return succesful;
     }
-    
+
     /**
-     * Send all the required commands for picking up roe
-     * Go down to Z height, and send suction
+     * Returns true if robot is in ready state, false if some status is marked
+     * as critical
+     *
+     * @return Returns true if robot is in ready state, false if robot has error
      */
-      private void pickUpRoe()
+    private boolean robotIsReady(long pollTime)
     {
-        
-        //Create and send the move cmd
-        Move moveDown = new Move();
-        moveDown.setIntZValue(defaultSuckHeight);
-        
-        //Move the robot back up
-        Move moveUp = new Move();
-        moveUp.setIntZValue(defaultHeight);
-        
-        //Move the robot down
-        i2cComm.addSendQ(moveDown);
-        
-        
-        //Suction
-        Suction suck = new Suction();
-        
-         while(!isReady())
-         {    //Update state or just wait until state gets ready
-             //Delay
-             updateStatus();
-         }   
-         
-         //Send suction command
-         i2cComm.addSendQ(suck);
-         
-         
-         //Wait for the Robot to finish before sending more requests to it
-         while(!isReady())
-         {    
-             updateStatus();
-         }
-         
-         //Move the robot up
-         i2cComm.addSendQ(moveUp);
-     }
-    
-    
-      /**
-       * Wait for status to be ready, return true if status is ready, false if not
-       * @return Return true if status is ready
-       */
+        boolean robotState = true;
+        //Check if robot is ready for new command & no faults are present
+        while (!isReady() && !robotFaultyStatus())
+        {
+            //After a set wait time, update the status
+            if (timerHasPassed(pollTime))
+            {
+                updateStatus(); //Send status update request
+                resetTimer();   //Reset timer
+            }
+        }
+        //Check if robot has a critical error
+        if (robotFaultyStatus())
+        {
+            robotState = false;
+        }
+
+        return robotState;
+    }
+
+    /**
+     * Wait for status to be ready, return true if status is ready, false if not
+     * @return Return true if status is ready
+     */
     private boolean isReady()
     {
         //Return bool
         boolean ready = false;
         //Check status
-        if(currentStatus != null)
+        if (currentStatus != null)
         {
-        if(currentStatus.getString().equalsIgnoreCase(State.ReadyToRecieve.getStateStatus().getString().toLowerCase()))
-            ready = true;
+            //Check if status is ready to recieve
+            if (currentStatus.getString().equalsIgnoreCase(State.ReadyToRecieve.getStateStatus().getString().toLowerCase()))
+            {
+                ready = true;
+            }
         }
-        
-        //TODO: ONLY FOR TESTING
-        if(i2cComm.returnTriggered())
-            ready = true;
-        
+        //Return the decided bool state
         return ready;
     }
+
     
-    
-     /**
+    /**
      * Return the number of trays.
+     *
      * @return
      */
-    public int getNumberOfTrays() {
+    public int getNumberOfTrays()
+    {
         // TODO: Fill method
         // Generate cmd for requesting nr of trays in rack from arduino.         
         return 3; // TODO: Return number of trays in rack. 
     }
+
     
-     /**
-     * Take a picture at e specefic frame number.
+    /**
+     * Move method used for moving the end-effector to a specific X,Y,Z
+     * coordinat
      *
-     * @param framNumber
+     * @param coordinat in a global coordinat system.
      */
-    public void takePicture(int framNumber) {
-        // TODO: Fill method
+    public void move(Coordinate cordinat)
+    {
+        //Do what necessary form moving the end-effector to a spesific coordinat. 
+        //Create the command and set the appropriate values
+        Move moveCmd = new Move();
+        moveCmd.setIntXValue(cordinat.getxCoord());
+        moveCmd.setIntYValue(cordinat.getxCoord());
+        moveCmd.setIntZValue(cordinat.getxCoord());
+        //Add to the communication sending queue
+        i2cComm.addSendQ(moveCmd);
     }
     
     
+    /**
+     * Take a picture at an specefic frame number.
+     *
+     * @param framNumber
+     */
+    public void takePicture(int framNumber)
+    {
+        // TODO: Fill method
+    }
+
     /**
      * Send a request for state update
      */
@@ -404,25 +690,126 @@ public class RoeAnalyserDevice {
         StateRequest stateReq = new StateRequest();
         i2cComm.addRecieveQ(stateReq);
     }
- 
-    
-    
+
     private void stopWatch(long waitMillis)
     {
         long initiatedMillis = System.nanoTime();
-        while(initiatedMillis < waitMillis+initiatedMillis);
-            
+        while (initiatedMillis < waitMillis + initiatedMillis);
+
     }
-    
-    
+
     //TODO: Only for testing
     public void toggleStatusReady()
     {
         currentStatus = State.ReadyToRecieve.getStateStatus();
     }
-    
+
     public void toggleBusyReady()
     {
         currentStatus = State.Busy.getStateStatus();
+    }
+
+    /**
+     * Turn light on (send light command with value 1 as payload)
+     */
+    public void turnOnLight()
+    {
+        //Create command
+        Light cmdLight = new Light();
+        //Make the control byte to be sent
+        cmdLight.setOn();
+
+        //Return bool for result of task
+        boolean succesful = true;
+
+        //Check if robot is ready for new command & no faults are present
+        while (!isReady() && !robotFaultyStatus())
+        {
+            //After a set wait time, update the status
+            if (timerHasPassed(waitTime))
+            {
+                updateStatus(); //Send status update request
+                resetTimer();   //Reset timer
+            }
+        }
+        //Check if robot has a critical error
+        if (robotFaultyStatus())
+        {
+            succesful = false;
+        }
+
+        //Send command
+        i2cComm.addSendQ(cmdLight);
+    }
+
+    /**
+     * Turn light off (send light command with value 0 as payload)
+     */
+    public boolean turnOffLight()
+    {
+        //Return bool for result of task
+        boolean succesful = true;
+
+        //Toggle light
+        //Create command
+        Light cmdLight = new Light();
+        cmdLight.setOff();
+        //Check if robot is ready for new command & no faults are present
+        while (!isReady() && !robotFaultyStatus())
+        {
+            //After a set wait time, update the status
+            if (timerHasPassed(waitTime))
+            {
+                updateStatus(); //Send status update request
+                resetTimer();   //Reset timer
+            }
+        }
+        //Check if robot has a critical error
+        if (robotFaultyStatus())
+        {
+            succesful = false;
+        }
+
+        //Send command
+        i2cComm.addSendQ(cmdLight);
+
+        return succesful;
+    }
+
+    /**
+     * Resets the timer
+     */
+    private void resetTimer()
+    {
+        timerTime = System.nanoTime();
+    }
+
+    /**
+     * Returns true if the timer has passed given nanoseconds;
+     *
+     * @param waitNanosecs
+     * @return Returns true if timer has passed given nanoseconds
+     */
+    private boolean timerHasPassed(long waitNanosec)
+    {
+        boolean timerPassed = false;
+        //When (nanotime - timertimer) is bigger than wait time, 
+        //timer has passed given time
+        if (waitNanosec < System.nanoTime() - timerTime)
+        {
+            timerPassed = true;
+        }
+
+        return timerPassed;
+    }
+
+    /**
+     * Returns true if the the current status is regarded as a fault
+     *
+     * @return Returns true if the the current status is regarded as a fault
+     */
+    private boolean robotFaultyStatus()
+    {
+        return this.currentStatus.critical();
     }
 }
