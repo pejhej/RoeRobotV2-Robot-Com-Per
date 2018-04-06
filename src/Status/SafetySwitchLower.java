@@ -5,6 +5,8 @@
  */
 package Status;
 
+import StatusListener.StatusListener;
+
 
 
 /**
@@ -29,5 +31,18 @@ public class SafetySwitchLower extends Status
      {
          return true;
      }
-    
+ 
+     /**
+      * Notify listeners of lower safety switch state change
+      */
+     public void notifyListeners()
+     {
+         if(this.listeners != null)
+         {
+             for(StatusListener listener : listeners)
+             {
+                 listener.notifySafetySwitchLower();
+             }
+         }
+     }
 }

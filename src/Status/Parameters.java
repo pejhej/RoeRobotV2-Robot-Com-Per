@@ -4,18 +4,17 @@
  * and open the template in the editor.
  */
 package Status;
-
+import StatusListener.StatusListener;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
+import java.util.ArrayList;
 /**
  *
  * @author PerEspen
  */
 public class Parameters extends Status
-{
+{   
     //Status name for this class
-
     private static final String STATUS = "PARAMETERS";
 
     //ADDRESS For this status command
@@ -40,6 +39,8 @@ public class Parameters extends Status
         this.setShortXValue((short) 0);
         this.setShortYValue((short) 0);
         this.setShortZValue((short) 0);
+        
+        
     }
 
     /**
@@ -334,5 +335,19 @@ public class Parameters extends Status
           System.out.print("Z value: ");
          System.out.println(this.getShortZValue());
      }
-
+     
+     /**
+      * Notify listeners of calibration parameters received
+      */
+     public void notifyListeners()
+     {
+         if(this.listeners != null)
+         {
+             for(StatusListener listener : listeners)
+             {
+                // Create string or something with all calib params
+                // listener.notifyParameters(STATUS);
+             }
+         }
+     }
 }

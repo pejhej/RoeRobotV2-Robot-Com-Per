@@ -5,6 +5,8 @@
  */
 package Status;
 
+import StatusListener.StatusListener;
+
 /**
  *
  * @author PerEspen
@@ -21,6 +23,18 @@ public class Stopped extends Status
         super(COMMAND_ADDRESS, STATUS);
     }
     
-    
+    /**
+      * Notify listeners of stopped status 
+      */
+     public void notifyListeners()
+     {
+         if(this.listeners != null)
+         {
+             for(StatusListener listener : listeners)
+             {
+                 listener.notifyStopped();
+             }
+         }
+     }
     
 }

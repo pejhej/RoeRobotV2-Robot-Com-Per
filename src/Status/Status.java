@@ -5,6 +5,8 @@
  */
 package Status;
 
+import StatusListener.StatusListener;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,6 +17,10 @@ import java.util.logging.Logger;
  */
 public class Status 
 {
+    
+    // list holding listeners
+    ArrayList<StatusListener> listeners;
+
     //Address for the status
     private final byte StatusAddress;
     
@@ -111,5 +117,14 @@ public class Status
      {
          return false;
      }
-   
+     
+     /**
+      * Add listener to listener list
+      * 
+      * @param listener to be added to list
+      */
+     public void addListener(StatusListener listener)
+     {
+         this.listeners.add(listener);
+     }
 }

@@ -381,6 +381,9 @@ public class I2CCommunication extends Thread
           //   System.out.println("State not recognised!!!");
             Status status = state.getStatus();
             returnState = status.returnNew();
+            
+            
+            // returnstate.addListener(RA); 
         }
     
             

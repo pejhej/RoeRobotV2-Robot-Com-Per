@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 package Status;
-
+import StatusListener.StatusListener;
 
 /**
  *
@@ -28,6 +28,18 @@ public class LinearBotLimitTrigged extends Status
          return true;
      }
     
-    
+    /**
+      * Notify listeners of linear robot limit trigger state change
+      */
+     public void notifyListeners()
+     {
+         if(this.listeners != null)
+         {
+             for(StatusListener listener : listeners)
+             {
+                 listener.notifyLinearBotLimitTrigged();
+             }
+         }
+     }
     
 }

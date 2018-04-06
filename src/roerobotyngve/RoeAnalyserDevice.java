@@ -29,6 +29,8 @@ import Status.SafetySwitchLower;
 import Status.SafetySwitchUpper;
 import Status.Status;
 import Status.Stopped;
+import StatusListener.StatusListener;
+
 import static com.pi4j.wiringpi.Gpio.delay;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +47,7 @@ import org.junit.rules.Stopwatch;
  *
  * @author Yngve & Per Espen
  */
-public class RoeAnalyserDevice
+public class RoeAnalyserDevice implements StatusListener
 {
 
     public RoeAnalyserDevice(I2CCommunication i2c)
@@ -53,6 +55,58 @@ public class RoeAnalyserDevice
         i2cComm = i2c;
 
     }
+
+    
+    // interface methods that is called by the statuses
+    
+    @Override
+    public void notifyBusy() 
+    {
+        // here we enter the code that should be executed when the busy status 
+        // is received.
+    }
+
+    @Override
+    public void notifyElevatorLimitTrigged() 
+    {
+    }
+
+    @Override
+    public void notifyLinearBotLimitTrigged() 
+    {
+    }      
+
+    @Override
+    public void notifyEMC() 
+    {
+    }
+
+    @Override
+    public void notifyParameters(String calibParam) 
+    {
+    }
+
+    @Override
+    public void notifyReadyToRecieve() 
+    {
+    }
+
+    @Override
+    public void notifySafetySwitchLower() 
+    {
+    }
+
+    @Override
+    public void notifySafetySwitchUpper() 
+    {
+    }
+
+    @Override
+    public void notifyStopped() 
+    {
+    }
+    
+    
 
     //Enum for holding the states
     private enum State
@@ -511,7 +565,6 @@ public class RoeAnalyserDevice
             {
                 updateStatus(); //Send status update request
                 resetTimer();   //Reset timer
-                delay(1000);
             }
         }
         //Check if robot has a critical error

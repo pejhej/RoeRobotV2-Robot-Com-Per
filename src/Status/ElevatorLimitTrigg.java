@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 package Status;
-
+import StatusListener.StatusListener;
 /**
  *
  * @author PerEspen
@@ -28,4 +28,17 @@ public class ElevatorLimitTrigg extends Status
          return true;
      }
     
+     /**
+      * Notify listeners of elevator limit trig state change
+      */
+     public void notifyListeners()
+     {
+         if(this.listeners != null)
+         {
+             for(StatusListener listener : listeners)
+             {
+                 listener.notifyElevatorLimitTrigged();
+             }
+         }
+     }
 }

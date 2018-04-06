@@ -5,7 +5,7 @@
  */
 package Status;
 
-
+import StatusListener.StatusListener;
 
 /**
  *
@@ -30,4 +30,17 @@ public class EMC extends Status
          return true;
      }
     
+     /**
+      * Notify listeners of EMC state change
+      */
+     public void notifyListeners()
+     {
+         if(this.listeners != null)
+         {
+             for(StatusListener listener : listeners)
+             {
+                 listener.notifyEMC();
+             }
+         }
+     }
 }
