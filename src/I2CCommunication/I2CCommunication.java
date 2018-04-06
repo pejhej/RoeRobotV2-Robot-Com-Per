@@ -242,7 +242,7 @@ public class I2CCommunication extends Thread
         */
         if(request != null)
         {
-            returnByteLinearBot = readByteFromAddr(linearRobot, request.getCmdAddr(), request.getNrOfBytes());
+//TODO: FOR TESTING            returnByteLinearBot = readByteFromAddr(linearRobot, request.getCmdAddr(), request.getNrOfBytes());
             returnByteElevator = readByteFromAddr(elevatorRobot, request.getCmdAddr() , request.getNrOfBytes());
         }
 
@@ -318,6 +318,7 @@ public class I2CCommunication extends Thread
         //Safeguarding against null-pointer
         if (elevatorState != null && linearBotState != null)
         {
+            
             //System.out.println(elevatorState.equals(State.ReadyToRecieve));
             if((Byte.compare(elevatorState.getStatusAddress(), State.ReadyToRecieve.getStateValue()) == 0) && (Byte.compare(linearBotState.getStatusAddress(), State.ReadyToRecieve.getStateValue()) == 0))
             {
@@ -376,33 +377,6 @@ public class I2CCommunication extends Thread
         {
             System.out.println(state.getStateValue());
         
-            /*
-            if (state.equals(state.Busy))
-            {
-                System.out.println("State equals busy");
-                returnState = new Busy();
-            } else if (state.equals(state.EMC))
-            {
-                System.out.println("State equals EMC");
-                returnState = new EMC();
-            } else if (state.equals(state.ReadyToRecieve))
-            {
-                System.out.println("State equals Ready");
-                returnState = new ReadyToRecieve();
-            } else if (state.equals(state.ENCODER_OUT_OF_SYNC))
-            {
-                System.out.println("State equals encoder");
-                returnState = new EncoderOutOfSync();
-            } else if (state.equals(state.ENCODER_OUT_OF_RANGE))
-            {
-                System.out.println("State equals encoder our of range");
-                returnState = new EncoderOutOfRange();
-            } else if (state.equals(state.PARAMETER))
-            {
-                returnState = new Parameters();
-            }
-            */
-            
             
           //   System.out.println("State not recognised!!!");
             Status status = state.getStatus();
@@ -455,7 +429,8 @@ public class I2CCommunication extends Thread
             
             i2cbus = I2CFactory.getInstance(I2CbusNr);
             elevatorRobot = i2cbus.getDevice(CONTROLLER_ADDR_ELEVATOR);
-            linearRobot = i2cbus.getDevice(CONTROLLER_ADDR_LINEARBOT);
+            //TODO: REMOVE WHILE TESTING
+          //  linearRobot = i2cbus.getDevice(CONTROLLER_ADDR_LINEARBOT);
 
         } catch (I2CFactory.UnsupportedBusNumberException ex)
         {
@@ -503,7 +478,11 @@ public class I2CCommunication extends Thread
             Logger.getLogger(I2CCommunication.class
                     .getName()).log(Level.SEVERE, null, ex);
         }
-
+         System.out.print("BytesRead: ");
+         System.out.print(bytesRead);
+         System.out.print(", ");
+         System.out.print(returnByte[0]);
+         
         byte[] modifiedReturnByte = null;
         //create array with exact amount of bytes
         if(bytesRead > 0)
@@ -700,7 +679,7 @@ public class I2CCommunication extends Thread
         //Send the calibrate command
         else if (cmd instanceof Calibrate)
         {
-            writeByte(linearRobot, cmd.getCmdAddr());
+//TODO: remove after test            writeByte(linearRobot, cmd.getCmdAddr());
             writeByte(elevatorRobot, cmd.getCmdAddr());
         } //Check for suction command
         else if (cmd instanceof Suction)
@@ -870,22 +849,6 @@ public class I2CCommunication extends Thread
     {
         return readyTriggered;
     }
-    /*
-    private void fillStatusList(ArrayList<Byte> statusList)
-    {
-        statusList.add(BUSY);
-        statusList.add(EMC);
-        statusList.add(ELEV_LIMIT_TRIGG);
-        statusList.add(ENCODER_OUT_OF_RANGE);
-        statusList.add(ENCODER_OUT_OF_SYNC);
-        statusList.add(FLAG_POS);
-        statusList.add(READY_TO_RECIEVE);
-        statusList.add(LINEARBOT_LMIT_TRIGG);
-        statusList.add(SAFETY_SWITCH_LOWER);
-        statusList.add(SAFETY_SWITCH_UPPER);
-        statusList.add(READY_TO_RECIEVE);
-    }
-     */
 
 }
 

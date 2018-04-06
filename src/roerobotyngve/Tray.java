@@ -5,7 +5,7 @@
  */
 package roerobotyngve;
 
-import com.sun.xml.internal.bind.v2.runtime.Coordinator;
+import java.util.ArrayList;
 
 /**
  * Class represents a tray. The tray has a width, hight and a depth. The tray
@@ -24,28 +24,37 @@ public class Tray{
     private final int upperPos = 30; // defined in mm parallel to the Z-axis 
     private final int lowerPos = 40; // defined in mm parallel to the Z-axis
     
+    private final int TotalCameraPositions = 6;  //Total amount of camera positions
+    
     private int nrOfRemovedRoe;
     private int flagPosZ;
     
     //Coordinate for diff positions related to the tray
+    //Coord for the handle when tray is close
    private Coordinate getHandleCoord;
+   //Default pos for roebot
     private Coordinate defaultPosCoord;
+    //Coordinate for opening the tray - from holding tray handle to open
     private Coordinate openTrayCoord;
-    
+    //Coordinate for Z coordinate(down to tray roe level)
     private Coordinate pickupRoeZCoord;
     
-    private Coordinate cameraPos1;
+    //Different camerapossez
+    /*private Coordinate cameraPos1;
     private Coordinate cameraPos2;
     private Coordinate cameraPos3;
     private Coordinate cameraPos4;
     private Coordinate cameraPos5;
     private Coordinate cameraPos6;
-    
+    */
+    private ArrayList<Coordinate> cameraPositions;
 
     public Tray(int nr, int flagposZ) 
     {
         this.flagPosZ = flagposZ;
         this.nr = nr;
+        
+        this.cameraPositions = new ArrayList<Coordinate>();
     }
 
     /**
@@ -180,4 +189,26 @@ public class Tray{
      return returnCord;
     }
     
+    /**
+     * Return the coordinate for the wanted frame
+     * @param nr Number for the fram wanted
+     * @return Return the coordinate for the frame corresponding with the param famre number
+     */
+    public Coordinate getFrameCoord(int nr)
+    {
+        Coordinate returnCoord = null;
+        //Check if the coordinate is in the array
+        if(nr <= this.cameraPositions.size())
+            returnCoord = this.cameraPositions.get(nr);
+       
+       return returnCoord;
+    }
+    
+    
+    private void addCameraPos(Coordinate camPos)
+    {
+        this.cameraPositions.add(camPos);
+    }
+    
+  
 }

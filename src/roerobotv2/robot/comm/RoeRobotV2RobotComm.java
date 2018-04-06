@@ -158,7 +158,7 @@ public class RoeRobotV2RobotComm
          System.out.println("Sending request");
          
          CalibParam calibparam = new CalibParam();
-         
+    /*     
      //  i2comm.addRecieveQ(strq);
       // i2comm.addSendQ(move);
 //       i2comm.addSendQ(move2);
@@ -185,14 +185,15 @@ public class RoeRobotV2RobotComm
      //     System.out.println("Move");
            
        // i2comm.addSendQ(move);
-         
-     /*   this.sleeping(5000);
+        */ 
+     /*  this.sleeping(5000);
          System.out.println("StateRequest1, should be BUSY");
          i2comm.addRecieveQ(strq1); 
          
          this.sleeping(50);
         System.out.println("-------------------------");
-          System.out.println("Calib");
+    */   
+    System.out.println("Calib");
          i2comm.addSendQ(calib);
      
         // delay(50);
@@ -208,17 +209,17 @@ public class RoeRobotV2RobotComm
         System.out.println("StateRequest2, should be BUSY");
          i2comm.addRecieveQ(strq2);
          
-                this.sleeping(50);
+          /*      this.sleeping(50);
                 i2comm.addSendQ(move2);
                 
         System.out.println("Calib2");
          i2comm.addSendQ(calib);
-        
+        */
          this.sleeping(50);
          
              System.out.println("StateRequest3, should be READY");
             i2comm.addRecieveQ(strq3);
-       */
+       
        //  delay(3000);
    //      System.out.println("Ask for calib params");
    //      i2comm.addRecieveQ(calibparam);
@@ -267,13 +268,34 @@ public class RoeRobotV2RobotComm
      {
          RoeAnalyserDevice roeADev = new RoeAnalyserDevice(i2comm);
          //
-         Coordinate cord = new Coordinate(1,2,3);
-         roeADev.move(cord);
-         delay(1000);
-      
-         //roeADev.updateStatus();
-        roeADev.calibrate();
-        
+    
+       //  roeADev.updateStatus();
+        // roeADev.calibrate();
+      /*  while(true)
+        {
+            roeADev.updateStatus();
+            delay(200);
+        }
+       */
+        Calibrate calib = new Calibrate();
+                delay(500);
+        roeADev.updateStatus();
+        delay(500);
+        roeADev.testElevatorCMD(calib);
+        delay(500);
+        roeADev.testElevatorCMD(calib);
+        delay(500);
+        roeADev.testElevatorCMD(calib);
+        delay(500);
+        roeADev.testElevatorCMD(calib);
+        delay(500);
+        roeADev.testElevatorCMD(calib);
+        delay(500);
+        roeADev.updateStatus();
+        delay(500);
+        roeADev.updateStatus();
+        delay(500);
+        roeADev.updateStatus();
        /* if(waitTime > (System.nanoTime() - startTime))
         { 
              
