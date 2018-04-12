@@ -159,7 +159,7 @@ public class Commando
        
        
 /**
- * Return the nr of bytes in the value
+ * Return the nr of bytes set in nrOfBytes
  * @return Return the nr of bytes in value as int
  */
     public int getNrOfBytes()

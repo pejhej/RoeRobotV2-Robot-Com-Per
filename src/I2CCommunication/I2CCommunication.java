@@ -231,23 +231,83 @@ public class I2CCommunication extends Thread
             returnByteElevator = readByteFromAddr(elevatorRobot, cmdStqry.getCmdAddr(), cmdStqry.getNrOfBytes());
                  
 
-        } else if (request instanceof CalibParam)
+        }     if (request instanceof CalibParam)
         {
             //Cast to get the correct command address
             CalibParam cmdCalibPar = (CalibParam) request;
             System.out.print("Command CalibParam");
-
+            //Nr of bytes to read with first interaction 
+            int readSize = 2;
+            
+            short returnLinearSize;
+            short returnElevatorSize;
+ 
+            //Save the first bytes
+            byte[] linearSizeByte = new byte[readSize];
+            byte[] elevatorSizeByte = new byte[readSize];
+             //Get the amount of bytes to be sent - ergo how many bytes to read
             //TODO: Commented out returnbyte elevator;
-            returnByteLinearBot = readByteFromAddr(linearRobot, cmdCalibPar.getCmdAddr(), cmdCalibPar.getNrOfBytes());
-            returnByteElevator = readByteFromAddr(elevatorRobot,cmdCalibPar.getCmdAddr() , cmdCalibPar.getNrOfBytes());
-
+            linearSizeByte = readByteFromAddr(linearRobot, cmdCalibPar.getCmdAddr(), readSize);
+            elevatorSizeByte = readByteFromAddr(elevatorRobot,cmdCalibPar.getCmdAddr() , readSize);
+            //Save the size of linear and elevator return bytes
+            returnLinearSize = returnByteLinearBot[1];
+            returnElevatorSize = returnByteElevator[1];
+            //The return bytes
+            byte[] linearBytes = new byte[returnLinearSize];
+            byte[] elevatorBytes = new byte[returnElevatorSize];
+            
+            //Retrieve the bytes
+            readBytes(linearRobot, linearBytes, returnLinearSize);
+            readBytes(elevatorRobot, elevatorBytes, returnElevatorSize);
+            
+            
+            System.arraycopy(linearSizeByte, 0, request, readSize, readSize);
+            
         } //If nothing of the Request commands were recognised, just send a general request
         */
-        if(request != null)
+            //Cmd calibPar holds the amount of bytes to read.
+         if (request instanceof CalibParam)
         {
-//TODO: FOR TESTING            returnByteLinearBot = readByteFromAddr(linearRobot, request.getCmdAddr(), request.getNrOfBytes());
+            //Cast to get the correct command address
+            CalibParam cmdCalibPar = (CalibParam) request;
+            System.out.print("Command CalibParam");
+            //Nr of bytes to read with first interaction 
+            int readSize = cmdCalibPar.getNrOfBytes();
+            //
+            short returnLinearSize;
+            short returnElevatorSize;
+ 
+            //Save the first bytes
+            byte[] linearByte = new byte[readSize];
+            byte[] elevatorByte = new byte[readSize];
+            
+             //Get the amount of bytes to be sent - ergo how many bytes to read
+            //TODO: Commented out returnbyte elevator;
+            linearByte = readByteFromAddr(linearRobot, cmdCalibPar.getCmdAddr(), readSize);
+            elevatorByte = readByteFromAddr(elevatorRobot,cmdCalibPar.getCmdAddr() , readSize);
+            /*
+            //Save the size of linear and elevator return bytes
+            returnLinearSize = returnByteLinearBot[1];
+            returnElevatorSize = returnByteElevator[1];
+            //The return bytes
+            byte[] linearBytes = new byte[returnLinearSize];
+            byte[] elevatorBytes = new byte[returnElevatorSize];
+            */
+            
+            //Retrieve the bytes
+          
+            
+            System.arraycopy(linearByte, 0, request, readSize, readSize);
+            
+        } 
+            
+            
+         else if(request != null)
+        {
+          //TODO: FOR TESTING            returnByteLinearBot = readByteFromAddr(linearRobot, request.getCmdAddr(), request.getNrOfBytes());
             returnByteElevator = readByteFromAddr(elevatorRobot, request.getCmdAddr() , request.getNrOfBytes());
         }
+        
 
         /***Making the states and putting the payload inside the status message***/
         if (returnByteLinearBot != null)
@@ -384,13 +444,16 @@ public class I2CCommunication extends Thread
           //   System.out.println("State not recognised!!!");
             Status status = state.getStatus();
             returnState = status.returnNew();
-            
-            
-            // add listeners to the new state
-            for(StatusListener listener : this.listenerList)
+            //Check for nullpointer
+            if(listenerList != null)
             {
+                for(StatusListener listener : this.listenerList)
+                {
                 returnState.addListener(listener);
+                }
             }
+            // add listeners to the new state
+            
         }
         
             
