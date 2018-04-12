@@ -4,12 +4,12 @@
  * and open the template in the editor.
  */
 package I2CCommunication;
-
+import StatusListener.StatusListener;
 import Commands.Acceleration;
 import Commands.CalibParam;
 import Commands.Calibrate;
 import Commands.LockGripper;
-import Commands.Commando;
+import Commands.Commando; 
 import Commands.Light;
 import Commands.Move;
 import Commands.ReleaseGripper;
@@ -75,7 +75,10 @@ public class I2CCommunication extends Thread
     private static final int I2CbusNr = 4;
     private static final byte CONTROLLER_ADDR_ELEVATOR = 0x05;
     private static final byte CONTROLLER_ADDR_LINEARBOT = 0x03;
-
+    
+    // list holding the classes listening to the statuses
+    private ArrayList<StatusListener> listenerList;
+    
     //I2C Bus
     I2CBus i2cbus;
     //Controllers
@@ -383,9 +386,13 @@ public class I2CCommunication extends Thread
             returnState = status.returnNew();
             
             
-            // returnstate.addListener(RA); 
+            // add listeners to the new state
+            for(StatusListener listener : this.listenerList)
+            {
+                returnState.addListener(listener);
+            }
         }
-    
+        
             
 
         return returnState;
@@ -853,6 +860,16 @@ public class I2CCommunication extends Thread
         return readyTriggered;
     }
 
+    
+    /**
+     * Add class as listener to statuses.
+     * listener needs to implement StatusListener interface
+     * @param listener to add as listener to statuses
+     */
+    public void addListener(StatusListener listener)
+    {
+        this.listenerList.add(listener);
+    }
 }
 
 /*
