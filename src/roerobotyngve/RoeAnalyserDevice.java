@@ -170,7 +170,7 @@ public class RoeAnalyserDevice implements StatusListener
     //Timer timer = new Timer();
     //Timer variabales
     private long timerTime = 0;
-    private long waitTime = 100000;
+    private long waitTime = 1000000;
 
     //Holds the current status sent by the roerobot
     Status currentStatus;
@@ -455,8 +455,9 @@ public class RoeAnalyserDevice implements StatusListener
         // Send cmd. 
         Calibrate calicmd = new Calibrate();
         i2cComm.addSendQ(calicmd);
-
-        //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
+                //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
+        delay(300); //TODO: ONLY FOR TEST
+                
         if (robotIsReady(waitTime))
         {
             //Send calib param command to get calibration parameters
@@ -563,6 +564,7 @@ public class RoeAnalyserDevice implements StatusListener
             //After a set wait time, update the status
             if (timerHasPassed(pollTime))
             {
+                delay(1000);//TODO: ONLY FOR TEST
                 updateStatus(); //Send status update request
                 resetTimer();   //Reset timer
             }
@@ -743,6 +745,7 @@ public class RoeAnalyserDevice implements StatusListener
             //After a set wait time, update the status
             if (timerHasPassed(waitTime))
             {
+                delay(300);
                 updateStatus(); //Send status update request
                 resetTimer();   //Reset timer
             }
@@ -810,7 +813,7 @@ public class RoeAnalyserDevice implements StatusListener
         boolean timerPassed = false;
         //When (nanotime - timertimer) is bigger than wait time, 
         //timer has passed given time
-        if (waitNanosec < System.nanoTime() - timerTime)
+        if (waitNanosec < (System.nanoTime() - timerTime))
         {
             timerPassed = true;
         }

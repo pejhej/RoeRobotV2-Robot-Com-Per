@@ -3,19 +3,24 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package roerobotv2.robot.comm;
+package roerobotv3.robot.comm;
 
 import Commands.CalibParam;
 import Commands.Calibrate;
 import Commands.LockGripper;
 import Commands.Move;
 import Commands.StateRequest;
+import Commands.Stop;
 import I2CCommunication.I2CCommunication;
+import SerialCommunication.SerialCommunication;
 import Status.Busy;
 import Status.Parameters;
 import Status.ReadyToRecieve;
 import static com.pi4j.wiringpi.Gpio.delay;
+import com.sun.org.apache.bcel.internal.generic.AALOAD;
+import java.io.UnsupportedEncodingException;
 import static java.lang.Thread.sleep;
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -28,7 +33,7 @@ import roerobotyngve.Coordinate;
  *
  * @author PerEspen
  */
-public class RoeRobotV2RobotComm
+public class RoeRobotV3RobotComm
 {
             /**ALL THE COMMAND ADDRESSES FOR THE DIFFERENT COMMANDS **/
     /*FROM THE JAVA/Communication PROGRAM */
@@ -58,14 +63,14 @@ public class RoeRobotV2RobotComm
    private static final int MAX_CLIENT_THREADS = 20;
      private ScheduledExecutorService threadPool;
 
-     I2CCommunication i2comm;
+     SerialCommunication serialComm;
      
      
-     public RoeRobotV2RobotComm()
+     public RoeRobotV3RobotComm()
      {
-        // threadPool = Executors.newScheduledThreadPool(MAX_CLIENT_THREADS);
-         i2comm = new I2CCommunication();
-         i2comm.start();
+         threadPool = Executors.newScheduledThreadPool(MAX_CLIENT_THREADS);
+        // serialComm = new SerialCommunication();
+       //  serialComm.start();
      }
      
      public void initRun()
@@ -158,147 +163,99 @@ public class RoeRobotV2RobotComm
          System.out.println("Sending request");
          
          CalibParam calibparam = new CalibParam();
-    /*     
-     //  i2comm.addRecieveQ(strq);
-      // i2comm.addSendQ(move);
-//       i2comm.addSendQ(move2);
-//       i2comm.addSendQ(move3);
-         System.out.println(strq.getCmdAddr());       
-        //i2comm.addRecieveQ(strq);   
-        //i2comm.addRecieveQ(calibparam);  
-      //  delay(2000);
-        
-        
-        Parameters param = new Parameters();
-        
-       LockGripper close = new LockGripper();
-       close.setIntValue(10);
        
-       System.out.println("close values");
-       System.out.println(close.getIntValue());
-       System.out.println(close.getValue());
-          
-       byte[] statebyte = new byte[2];
-       statebyte[0] = 0x07;
-       i2comm.makeState(statebyte);
-       
-     //     System.out.println("Move");
-           
-       // i2comm.addSendQ(move);
-        */ 
-     /*  this.sleeping(5000);
-         System.out.println("StateRequest1, should be BUSY");
-         i2comm.addRecieveQ(strq1); 
-         
-         this.sleeping(50);
-        System.out.println("-------------------------");
-    */   
-    System.out.println("Calib");
-         i2comm.addSendQ(calib);
-     
-        // delay(50);
-       
-        this.sleeping(50);
-        
- //       System.out.println("Move2");
- //        i2comm.addSendQ(move2);
-        // delay(50);
-        
-        this.sleeping(50);
-        System.out.println("-------------------------");
-        System.out.println("StateRequest2, should be BUSY");
-         i2comm.addRecieveQ(strq2);
-         
-          /*      this.sleeping(50);
-                i2comm.addSendQ(move2);
-                
-        System.out.println("Calib2");
-         i2comm.addSendQ(calib);
-        */
-         this.sleeping(50);
-         
-             System.out.println("StateRequest3, should be READY");
-            i2comm.addRecieveQ(strq3);
-       
-       //  delay(3000);
-   //      System.out.println("Ask for calib params");
-   //      i2comm.addRecieveQ(calibparam);
-   /*      
-         
-         i2comm.addSendQ(move3);
-         i2comm.addSendQ(move4);
-         this.sleeping(50);
-         
-         i2comm.addSendQ(calib2);
-         
-         */
-//         System.out.println("Sending Move");
-//         i2comm.addSendQ(move5);
-//         delay(1000);
-        // System.out.println("Sending request");
-         
-//        delay(1000);
-//         i2comm.addSendQ(move);
-//         i2comm.addSendQ(move);
-//         i2comm.addSendQ(move);
-//         yval = 245;
-//         xval = 88;
-//         move.setShortXValue(xval);
-//        move.setShortYValue(yval);
-//        
-//         i2comm.addSendQ(move);
-//          i2comm.addSendQ(move);
-//     }
-     
-/*
-    Busy busyStatus = new Busy(1);
-         ReadyToRecieve rdy = new ReadyToRecieve(1);
-    byte[] stateByte = new byte[1];
-    stateByte[0] = busyStatus.getStatusAddress(); 
-   
-    i2comm.makeState(stateByte);
-     stateByte[0] = rdy.getStatusAddress(); 
-    i2comm.makeState(stateByte);
-*/
+ 
      }
      
      
      
      public void roeAnalyserDevTest()
      {
-         RoeAnalyserDevice roeADev = new RoeAnalyserDevice(i2comm);
-         //
-    
-       //  roeADev.updateStatus();
-        // roeADev.calibrate();
-      /*  while(true)
-        {
-            roeADev.updateStatus();
-            delay(200);
-        }
-       */
-        Calibrate calib = new Calibrate();
-                delay(500);
-        roeADev.updateStatus();
-        delay(500);
-         roeADev.calibrate();
-        delay(500);
-        /*roeADev.updateStatus();
-        delay(500);
-        roeADev.updateStatus();
-        delay(500);
-        roeADev.updateStatus();
-       /* if(waitTime > (System.nanoTime() - startTime))
-        { 
-             
-        }
-         */
-      /* delay(100);
-        System.out.println("SEND STOP");
-        roeADev.stopRobot();
-         */
-         
-         
+       try
+       {
+           // RoeAnalyserDevice roeADev = new RoeAnalyserDevice(i2comm);
+           //
+           
+           /* roeADev.updateStatus();
+           delay(500);
+           roeADev.updateStatus();
+           delay(500);
+           roeADev.updateStatus();
+           */
+           //  roeADev.calibrate();
+           /*  while(true)
+           {
+           roeADev.updateStatus();
+           delay(200);
+           }
+           */
+           //roeADev.updateStatus();
+           /*
+           Calibrate calib = new Calibrate();
+           delay(500);
+           roeADev.testElevatorCMD(calib);
+           delay(500);
+           roeADev.updateStatus();
+           delay(500);
+           roeADev.updateStatus();
+           roeADev.updateStatus();
+           delay(1000);
+           Stop stop = new Stop();
+           roeADev.testElevatorCMD(stop);
+           */
+           /*roeADev.updateStatus();
+           delay(500);
+           roeADev.updateStatus();
+           delay(500);
+           roeADev.updateStatus();
+           /* if(waitTime > (System.nanoTime() - startTime))
+           {
+           
+           }
+           */
+           /* delay(100);
+           System.out.println("SEND STOP");
+           roeADev.stopRobot();
+           */
+           
+  
+   
+           
+           String string = "dev1, 99, 100";
+           System.out.println("String:");
+           System.out.println(string);
+           byte[] stringByte =  string.getBytes("UTF-8");
+           
+           System.out.println("Byte to string:");
+           String fromByte = new String(stringByte, "UTF-8");
+           System.out.println(fromByte);
+           
+           
+           String[] incommingData = {"dev1", "0x05", "10", "50"};
+           System.out.println("INC DATA");
+           for(int i=0; i< incommingData.length; ++i)
+           {
+               System.out.println(incommingData[i]);
+           }
+           
+       
+           byte[] byteArray = new byte[incommingData.length-1];
+            
+            for(int i=1; i< incommingData.length; ++i)
+            {
+                byte[] tempArr = new byte[50];
+                
+                byteArray[i-1] = Byte.decode(incommingData[i]);
+            }
+            
+            System.out.println("ByteArray");
+            System.out.println(Arrays.toString(byteArray));
+              
+     
+       } catch (UnsupportedEncodingException ex)
+       {
+           Logger.getLogger(RoeRobotV3RobotComm.class.getName()).log(Level.SEVERE, null, ex);
+       }
      }
      
      
@@ -310,8 +267,8 @@ public class RoeRobotV2RobotComm
     public static void main(String[] args)
     {
        
-        RoeRobotV2RobotComm roeb = new RoeRobotV2RobotComm();
-        //roeb.initRun();
+        RoeRobotV3RobotComm roeb = new RoeRobotV3RobotComm();
+        roeb.initRun();
         roeb.roeAnalyserDevTest();
         
        
@@ -331,7 +288,7 @@ public class RoeRobotV2RobotComm
            sleep(50);
        } catch (InterruptedException ex)
        {
-           Logger.getLogger(RoeRobotV2RobotComm.class.getName()).log(Level.SEVERE, null, ex);
+           Logger.getLogger(RoeRobotV3RobotComm.class.getName()).log(Level.SEVERE, null, ex);
        }
        
     }
