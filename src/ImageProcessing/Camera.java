@@ -1,5 +1,5 @@
 
-package roerobot.imageprocessing;
+package ImageProcessing;
 
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;

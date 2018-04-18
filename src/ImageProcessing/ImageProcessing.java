@@ -1,5 +1,5 @@
 
-package roerobot.imageprocessing;
+package ImageProcessing;
 
 
 
