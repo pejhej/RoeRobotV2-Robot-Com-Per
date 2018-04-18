@@ -12,15 +12,22 @@ package roerobotyngve;
  */
 public class Coordinate {
 
-    private int xCoord;
-    private int yCoord;
-    private int zCoord;
+    private final int xCoord;
+    private final int yCoord;
+    private final int zCoord;
     
     
     public Coordinate(int xCoord, int yCoord, int zCoord) {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
         this.zCoord = zCoord;
+    }
+    
+    public Coordinate(int xCoord, int yCoord)
+    {
+        this.xCoord = xCoord;
+        this.yCoord = yCoord;
+        this.zCoord = 0;
     }
 
     /**
@@ -29,7 +36,7 @@ public class Coordinate {
      * @return int representing a x coodrinat in a global coordinat system
      */
     public int getxCoord() {
-        return xCoord;
+        return this.xCoord;
     }
 
     /**
@@ -38,7 +45,7 @@ public class Coordinate {
      * @return int representing a y coodrinat in a global coordinat system
      */
     public int getyCoord() {
-        return yCoord;
+        return this.yCoord;
     }
 
     /**
@@ -47,7 +54,7 @@ public class Coordinate {
      * @return int representing a z coodrinat in a global coordinat system
      */
     public int getzCoord() {
-        return zCoord;
+        return this.zCoord;
     }
     
 
