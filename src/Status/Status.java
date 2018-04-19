@@ -25,14 +25,16 @@ public class Status
     private final byte StatusAddress;
     
     private boolean triggered = false;
-   //Number of bytes if other message then address is carried
+    
+    //Number of bytes if other message then address is carried
     private  int nrOfBytes;
     
+    //flag of critical or uncritical status
+    private boolean critical = false;
     
     private byte[] value;
     
    //private boolean triggered;
-   
     private final String STATUS;
     
     public  Status(byte statusAddr, String name)
@@ -75,6 +77,17 @@ public class Status
         return this.STATUS;
     }
      
+     
+     /**
+      * Change the state of the critical variable
+      * 
+      * @param critical variables new state 
+      */
+    protected void setCritical(boolean critical)
+    {
+        this.critical = critical;
+    }
+     
      /**
       * Trigger the status, set Status bool high or low depending on input val
       * @param val Inputted value
@@ -111,11 +124,11 @@ public class Status
      //TODO: Override in subclasses
      /**
       * Returns true if this status is considered as critical for function
-      * @return 
+      * @return value of critical flag
       */
      public boolean critical()
      {
-         return false;
+         return this.critical;
      }
      
      /**
@@ -127,4 +140,21 @@ public class Status
      {
          this.listeners.add(listener);
      }
+     
+     /**
+      * Notify listeners on new status
+      */
+     /**
+     * Notify listeners on busy
+     */
+    public void notifyListeners()
+    {
+        if(this.listeners != null)
+        {
+            for(StatusListener listener : listeners)
+            {
+                listener.notifyNewStatus(this);
+            }
+        }
+    }
 }

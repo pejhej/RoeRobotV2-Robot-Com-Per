@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package Status;
-import StatusListener.StatusListener;
 
 /**
  *
@@ -20,26 +19,8 @@ public class LinearBotLimitTrigged extends Status
     public LinearBotLimitTrigged( )
     {
         super(COMMAND_ADDRESS , STATUS);
+        
+        // set critical value to true
+        super.setCritical(true);
     }
-    
-     @Override
-     public boolean critical()
-     {
-         return true;
-     }
-    
-    /**
-      * Notify listeners of linear robot limit trigger state change
-      */
-     public void notifyListeners()
-     {
-         if(this.listeners != null)
-         {
-             for(StatusListener listener : listeners)
-             {
-                 listener.notifyLinearBotLimitTrigged();
-             }
-         }
-     }
-    
 }

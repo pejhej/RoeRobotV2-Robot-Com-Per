@@ -5,8 +5,6 @@
  */
 package Status;
 
-import StatusListener.StatusListener;
-
 /**
  *
  * @author PerEspen
@@ -24,20 +22,5 @@ public class Busy extends Status
     public Busy()
     {
         super(COMMAND_ADDRESS, STATUS);
-    }
-    
-    
-    /**
-     * Notify listeners on busy
-     */
-    public void notifyListeners()
-    {
-        if(this.listeners != null)
-        {
-            for(StatusListener listener : listeners)
-            {
-                listener.notifyBusy();
-            }
-        }
     }
 }

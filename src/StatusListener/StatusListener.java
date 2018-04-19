@@ -5,6 +5,8 @@
  */
 package StatusListener;
 
+import Status.Status;
+
 /**
  *
  * @author KristianAndreLilleindset
@@ -12,49 +14,8 @@ package StatusListener;
 public interface StatusListener 
 {
     /**
-     * Notify on busy status.
+     * Notify new status
+     * @param status being triggered
      */
-    public void notifyBusy();
-    
-    /**
-     * Notify on EMC status.
-     */
-    public void notifyEMC();
-            
-    /**
-     * Notify on elevator limit trigged status.
-     */
-    public void notifyElevatorLimitTrigged();
-
-    /**
-     * Notify on linear limit trigged status.
-     */
-    public void notifyLinearBotLimitTrigged();
-    
-    /**
-     * Notify on calibration parameters status. 
-     * 
-     * @param calibParam parameters received from calibration
-     */
-    public void notifyParameters(String calibParam);
-    
-    /**
-     * Notify on ready to recieve status.
-     */
-    public void notifyReadyToRecieve();
-    
-    /**
-     * Notify on lower safety switch trigged status.
-     */
-    public void notifySafetySwitchLower();
-    
-    /**
-     * Notify on uppr safgety switch trigged status.
-     */
-    public void notifySafetySwitchUpper();
-    
-    /**
-     * Notify on stopped status.
-     */
-    public void notifyStopped();   
+    public void notifyNewStatus(Status status); 
 }

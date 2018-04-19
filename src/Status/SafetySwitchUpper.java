@@ -4,8 +4,6 @@
  * and open the template in the editor.
  */
 package Status;
-import StatusListener.StatusListener;
-import Commands.Commando;
 
 /**
  *
@@ -21,26 +19,11 @@ public class SafetySwitchUpper extends Status
     public SafetySwitchUpper()
     {
         super(COMMAND_ADDRESS, STATUS);
+        
+        // set critical value to true
+        super.setCritical(true);
     }
     
+  
     
-     @Override
-     public boolean critical()
-     {
-         return true;
-     }
-    
-     /**
-      * Notify listeners of upper safety switch state change
-      */
-     public void notifyListeners()
-     {
-         if(this.listeners != null)
-         {
-             for(StatusListener listener : listeners)
-             {
-                 listener.notifySafetySwitchUpper();
-             }
-         }
-     }
 }

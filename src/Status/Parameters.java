@@ -4,10 +4,7 @@
  * and open the template in the editor.
  */
 package Status;
-import StatusListener.StatusListener;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.ArrayList;
 /**
  *
  * @author PerEspen
@@ -20,7 +17,7 @@ public class Parameters extends Status
     //ADDRESS For this status command
     private static final byte COMMAND_ADDRESS = 0x70;
 
-    private static final byte defaultByteRange = Short.BYTES;
+    private static final byte DEFAULT_BYTE_RANGE = Short.BYTES;
 
     /**
      * PARAMETERS*
@@ -129,7 +126,7 @@ public class Parameters extends Status
     /**
      * Set the byte[] value with an Short of 2 significant numbers
      *
-     * @param intValue The Short to set to value
+     * @param shortValue The Short to set to value
      */
     public void setShortYValue(short shortValue)
     {
@@ -239,6 +236,9 @@ public class Parameters extends Status
 
     /**
      * ***********************BYTE METHODS***************
+     * 
+     * 
+     * @param byteArr
      */
     public void setXByteArr(byte[] byteArr)
     {
@@ -284,40 +284,40 @@ public class Parameters extends Status
       
 
         //Checks if there are multiple values, multiple values means its both x and y, maybe all
-        if (inputVal.length >= defaultByteRange * 2)
+        if (inputVal.length >= DEFAULT_BYTE_RANGE * 2)
         {
             /*Copying and setting the X byte[]*/
-            byte[] copy = new byte[defaultByteRange];
-            System.arraycopy(inputVal, 0, copy, 0, defaultByteRange);
+            byte[] copy = new byte[DEFAULT_BYTE_RANGE];
+            System.arraycopy(inputVal, 0, copy, 0, DEFAULT_BYTE_RANGE);
             this.setXByteArr(copy);
-            lenghtCnt = lenghtCnt + defaultByteRange;
+            lenghtCnt = lenghtCnt + DEFAULT_BYTE_RANGE;
 
             /*Copying and setting the Y byte[]*/
-            copy = new byte[defaultByteRange];
-            System.arraycopy(inputVal, defaultByteRange, copy, 0, defaultByteRange);
+            copy = new byte[DEFAULT_BYTE_RANGE];
+            System.arraycopy(inputVal, DEFAULT_BYTE_RANGE, copy, 0, DEFAULT_BYTE_RANGE);
             this.setYByteArr(copy);
-            lenghtCnt = lenghtCnt + defaultByteRange;
+            lenghtCnt = lenghtCnt + DEFAULT_BYTE_RANGE;
             
             //Means there are values After the XY-Bytes
             //Most certainly 
-            if ((lenghtCnt + defaultByteRange) <= inputVal.length)
+            if ((lenghtCnt + DEFAULT_BYTE_RANGE) <= inputVal.length)
             {
                 /*Copying and setting the Y byte[]*/
-                copy = new byte[defaultByteRange];
-                System.arraycopy(inputVal, (defaultByteRange * 2), copy, 0, defaultByteRange);
+                copy = new byte[DEFAULT_BYTE_RANGE];
+                System.arraycopy(inputVal, (DEFAULT_BYTE_RANGE * 2), copy, 0, DEFAULT_BYTE_RANGE);
                 this.setZByteArr(copy);
-                lenghtCnt = lenghtCnt + defaultByteRange;
+                lenghtCnt = lenghtCnt + DEFAULT_BYTE_RANGE;
             }
         } 
         //Only 1 value means its only z range
-        else if (inputVal.length >= defaultByteRange)
+        else if (inputVal.length >= DEFAULT_BYTE_RANGE)
         {
             
             /*Copying and setting the X byte[]*/
             byte[] copy = new byte[inputVal.length];
-            System.arraycopy(inputVal, 0, copy, 0, defaultByteRange);
+            System.arraycopy(inputVal, 0, copy, 0, DEFAULT_BYTE_RANGE);
             this.setZByteArr(copy);
-            lenghtCnt = lenghtCnt + defaultByteRange;
+            lenghtCnt = lenghtCnt + DEFAULT_BYTE_RANGE;
         }
     }
     
@@ -334,20 +334,5 @@ public class Parameters extends Status
          
           System.out.print("Z value: ");
          System.out.println(this.getShortZValue());
-     }
-     
-     /**
-      * Notify listeners of calibration parameters received
-      */
-     public void notifyListeners()
-     {
-         if(this.listeners != null)
-         {
-             for(StatusListener listener : listeners)
-             {
-                // Create string or something with all calib params
-                // listener.notifyParameters(STATUS);
-             }
-         }
      }
 }

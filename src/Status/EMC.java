@@ -21,26 +21,8 @@ public class EMC extends Status
     public EMC( )
     {
         super(COMMAND_ADDRESS, STATUS);
+        
+        // set critical value to true
+        super.setCritical(true);
     }
-    
-    
-    @Override
-     public boolean critical()
-     {
-         return true;
-     }
-    
-     /**
-      * Notify listeners of EMC state change
-      */
-     public void notifyListeners()
-     {
-         if(this.listeners != null)
-         {
-             for(StatusListener listener : listeners)
-             {
-                 listener.notifyEMC();
-             }
-         }
-     }
 }

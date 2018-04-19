@@ -57,57 +57,20 @@ public class RoeAnalyserDevice implements StatusListener
     }
 
     
-    // interface methods that is called by the statuses
-    
+
+    /**
+     * Notification of incoming statuses 
+     * 
+     * @param status being trigged
+     */
     @Override
-    public void notifyBusy() 
+    public void notifyNewStatus(Status status) 
     {
-        // here we enter the code that should be executed when the busy status 
-        // is received.
+        
     }
 
-    @Override
-    public void notifyElevatorLimitTrigged() 
-    {
-    }
-
-    @Override
-    public void notifyLinearBotLimitTrigged() 
-    {
-    }      
-
-    @Override
-    public void notifyEMC() 
-    {
-    }
-
-    @Override
-    public void notifyParameters(String calibParam) 
-    {
-    }
-
-    @Override
-    public void notifyReadyToRecieve() 
-    {
-    }
-
-    @Override
-    public void notifySafetySwitchLower() 
-    {
-    }
-
-    @Override
-    public void notifySafetySwitchUpper() 
-    {
-    }
-
-    @Override
-    public void notifyStopped() 
-    {
-    }
     
     
-
     //Enum for holding the states
     private enum State
     {
@@ -124,7 +87,8 @@ public class RoeAnalyserDevice implements StatusListener
         ENCODER_OUT_OF_RANGE(new EncoderOutOfRange()),
         PARAMETER(new Parameters()),
         FLAG_POS(new FlagPos());
-
+        
+        
         //Hashmap for lookup
         private static final HashMap<Status, State> lookup = new HashMap<Status, State>();
 
