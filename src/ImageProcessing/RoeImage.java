@@ -1,9 +1,9 @@
 
 package ImageProcessing;
 
+import roerobotyngve.Coordinate;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import org.opencv.core.Mat;
 
 
@@ -28,7 +28,7 @@ public class RoeImage
     private int pictureIndex;
     
     // list holding position of roe detected in the image
-    private ArrayList<Coordinate> roePositions;
+    private final ArrayList<Coordinate> roePositions;
     
     public RoeImage()
     {
